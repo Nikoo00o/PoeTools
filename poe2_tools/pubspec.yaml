@@ -1,0 +1,40 @@
+name: poe2_tools
+description: "Project for Path of Exile 2"
+publish_to: 'none'
+resolution: workspace
+version: 1.0.0
+
+environment:
+  sdk: '>=3.9.0 <4.0.0'
+  flutter: ^3.35.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # base library functions
+  game_tools_lib:
+    path: ../../../plugins/game_tools_lib
+
+  # base shared functions
+  poe_shared:
+    path: ../poe_shared
+
+  flutter_localizations:
+    sdk: flutter
+
+dev_dependencies:
+  integration_test:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  # Asset file folders to be used in this and following packages!
+  assets:
+    - assets/
+    - assets/locales/
+    - assets/images/
+    - assets/images/compare/

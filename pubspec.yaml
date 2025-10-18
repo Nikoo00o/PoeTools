@@ -1,0 +1,12 @@
+name: poe_tools
+publish_to: none
+environment:
+  sdk: '>=3.9.0 <4.0.0'
+  flutter: ^3.35.0
+workspace:
+  - poe_shared
+  - poe1_tools
+  - poe2_tools
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
