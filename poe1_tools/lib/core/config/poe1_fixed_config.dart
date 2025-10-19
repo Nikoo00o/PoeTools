@@ -3,7 +3,7 @@ import 'package:poe_shared/core/config/shared_fixed_config.dart';
 
 base class Poe1FixedConfig extends FixedConfig with SharedFixedConfig {
   @override
-  List<String> get versionPathToGitProject => <String>["https://github.com/Nikoo00o/GameToolsLib", ""];
+  List<String> get versionPathToGitProject => <String>["https://github.com/Nikoo00o/PoeTools", "poe1_tools"];
 
   const Poe1FixedConfig();
 }

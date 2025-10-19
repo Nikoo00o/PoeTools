@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:game_tools_lib/core/config/app_colors_config_option.dart';
-import 'package:game_tools_lib/core/config/fixed_config.dart';
 import 'package:game_tools_lib/core/config/locale_config_option.dart';
 import 'package:game_tools_lib/core/config/mutable_config.dart';
 import 'package:game_tools_lib/core/enums/log_level.dart';
@@ -22,7 +21,7 @@ base mixin SharedMutableConfig on MutableConfig {
 
   final LocaleConfigOption _currentLocale = LocaleConfigOption(
     title: const TS("config.currentLocale"),
-    defaultValue: FixedConfig().supportedLocales.first,
+    defaultValue: const Locale("en"),
   );
 
   @override
@@ -35,4 +34,11 @@ base mixin SharedMutableConfig on MutableConfig {
       baseAdditionalColors: <Color>[],
     ),
   );
+
+  @override
+  List<MutableConfigOption<dynamic>> getConfigurableOptions() {
+    final List<MutableConfigOption<dynamic>> previous = super.getConfigurableOptions();
+    final MutableConfigOption<dynamic> defaultGroup = previous.first;
+    return <MutableConfigOption<dynamic>>[...previous];
+  }
 }
