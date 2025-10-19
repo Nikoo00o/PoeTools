@@ -35,10 +35,30 @@ base mixin SharedMutableConfig on MutableConfig {
     ),
   );
 
+  final StringConfigOption characterNameOverride = StringConfigOption(
+    title: TS.raw("Character Name Override"),
+    defaultValue: "",
+    description: TS.raw(
+      "Empty per default, but can be used to disable the tool chatting on first hideout enter. "
+      "RESTART TOOL AFTER CHANGE",
+    ),
+  );
+
   @override
   List<MutableConfigOption<dynamic>> getConfigurableOptions() {
     final List<MutableConfigOption<dynamic>> previous = super.getConfigurableOptions();
     final MutableConfigOption<dynamic> defaultGroup = previous.first;
-    return <MutableConfigOption<dynamic>>[...previous];
+    return <MutableConfigOption<dynamic>>[
+      ...previous,
+      MutableConfigOptionGroup(
+        title: TS.raw("Poe Settings"),
+        configOptions: <MutableConfigOption<dynamic>>[
+          characterNameOverride,
+        ],
+      ),
+    ];
   }
+
+  /// Quick getter
+  static SharedMutableConfig get instance => MutableConfig.mutableConfig as SharedMutableConfig;
 }

@@ -3,6 +3,9 @@ import 'package:game_tools_lib/domain/game/game_window.dart';
 import 'package:game_tools_lib/game_tools_lib.dart';
 import 'package:poe1_tools/core/config/poe1_tools_config.dart';
 import 'package:poe_shared/core/shared_game_manager.dart';
+import 'package:poe_shared/modules/area_manager/area_manager.dart';
+import 'package:poe_shared/modules/player_manager/player_manager.dart';
+import 'package:poe_shared/modules/progress_story/progress_story.dart';
 
 typedef Poe1GameManagerT = Poe1GameManager<Poe1ToolsConfigT>;
 
@@ -21,7 +24,12 @@ base class Poe1GameManager<CType extends Poe1ToolsConfigT> extends GameManager<C
   @override
   @protected
   @mustCallSuper
-  List<ModuleBaseType> moduleConfiguration() => <ModuleBaseType>[...super.moduleConfiguration()];
+  List<ModuleBaseType> moduleConfiguration() => <ModuleBaseType>[
+    ...super.moduleConfiguration(),
+    AreaManager<Poe1GameManagerT>(),
+    PlayerManager<Poe1GameManagerT>(),
+    ProgressStory<Poe1GameManagerT>(),
+  ];
 
   @override
   @mustCallSuper

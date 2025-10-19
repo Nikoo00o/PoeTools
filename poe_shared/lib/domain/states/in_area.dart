@@ -1,25 +1,63 @@
-import 'package:game_tools_lib/domain/game/game_window.dart';
 import 'package:game_tools_lib/game_tools_lib.dart';
+import 'package:poe_shared/modules/area_manager/areas.dart';
 
-final class InGameState extends GameState {
+final class InArea extends GameState {
+  final String areaName;
+
+  /// Default would be 0
+  final int areaLevel;
+
+  static const int maxAreaLevelForPart1 = 44;
+
+  /// Only for areas which may have the same name, this can be true depending on the area level
+  bool get isSecondPart => areaLevel > maxAreaLevelForPart1;
+
+  InArea({
+    required this.areaName,
+    required this.areaLevel,
+  });
+
   @override
   Future<void> onStart(GameState oldState) async {
-    super.onStart(oldState);
-    // test
+    await super.onStart(oldState);
   }
 
   @override
   Future<void> onStop(GameState newState) async {}
 
   @override
-  Future<void> onOpenChange(GameWindow window) async {}
+  Future<void> onUpdate() async {
+
+  }
+
+  bool get isHideout => Areas.hideouts.contains(areaName);
+
+  bool get isTown => Areas.towns.contains(areaName);
+
+  bool get isMap => Areas.mapNames.contains(areaName);
+
+  /// does not return true for towns
+  bool get isStoryZone {
+    for (final List<String> zones in Areas.actZones) {
+      if (zones.contains(areaName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// special area like
+  bool get isSpecial => Areas.specialNames.contains(areaName);
+
+  String get areaType {
+    if (isHideout) return "Hideout";
+    if (isTown) return "Town";
+    if (isMap) return "Map";
+    if (isStoryZone) return "Zone";
+    if (isSpecial) return "Special";
+    return "Area";
+  }
 
   @override
-  Future<void> onFocusChange(GameWindow window) async {}
-
-  @override
-  Future<void> onUpdate() async {}
-
-  @override
-  String get welcomeMessage => "Switched to $runtimeType";
+  String get welcomeMessage => "Joined $areaType $areaName LvL $areaLevel";
 }

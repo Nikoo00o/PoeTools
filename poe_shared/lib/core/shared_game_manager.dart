@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show mustCallSuper, protected;
 import 'package:game_tools_lib/domain/game/game_window.dart';
+import 'package:game_tools_lib/domain/game/states/game_closed_state.dart';
 import 'package:game_tools_lib/game_tools_lib.dart';
 
 base mixin SharedGameManager<CType extends GameToolsConfigBaseType> on GameManager<CType> {
@@ -17,7 +18,9 @@ base mixin SharedGameManager<CType extends GameToolsConfigBaseType> on GameManag
 
   @override
   @mustCallSuper
-  Future<void> onStop() async {}
+  Future<void> onStop() async {
+
+  }
 
   @override
   @mustCallSuper
@@ -25,7 +28,11 @@ base mixin SharedGameManager<CType extends GameToolsConfigBaseType> on GameManag
 
   @override
   @mustCallSuper
-  Future<void> onOpenChange(GameWindow window) async {}
+  Future<void> onOpenChange(GameWindow window) async {
+    if(!window.isOpen){
+        await changeState(GameClosedState());
+    }
+  }
 
   @override
   @mustCallSuper
