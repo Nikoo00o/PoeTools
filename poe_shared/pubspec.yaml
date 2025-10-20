@@ -34,3 +34,5 @@ flutter:
     - assets/locales/
     - assets/images/
     - assets/images/compare/
+    - assets/areas/
+    - assets/layouts/

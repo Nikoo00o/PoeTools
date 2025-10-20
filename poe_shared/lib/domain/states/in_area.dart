@@ -1,3 +1,4 @@
+import 'package:game_tools_lib/core/exceptions/exceptions.dart';
 import 'package:game_tools_lib/game_tools_lib.dart';
 import 'package:poe_shared/modules/area_manager/areas.dart';
 
@@ -26,9 +27,7 @@ final class InArea extends GameState {
   Future<void> onStop(GameState newState) async {}
 
   @override
-  Future<void> onUpdate() async {
-
-  }
+  Future<void> onUpdate() async {}
 
   bool get isHideout => Areas.hideouts.contains(areaName);
 
@@ -56,6 +55,41 @@ final class InArea extends GameState {
     if (isStoryZone) return "Zone";
     if (isSpecial) return "Special";
     return "Area";
+  }
+
+  // just returns 0 if not story zone (also for towns). exception if story zone not found
+  /// ZERO BASED ACCESS!!!
+  int get actForStoryZone {
+    if (isStoryZone) {
+      final List<List<String>> acts = Areas.actZones;
+      late int start, end;
+      if (isSecondPart) {
+        start = 5;
+        end = 10;
+      } else {
+        start = 0;
+        end = 5;
+      }
+      for (int i = start; i < end; ++i) {
+        if (isContainedInAct(acts.elementAt(i))) {
+          return i;
+        }
+      }
+      throw AssetException(message: "Could not find zone $areaName in acts $acts");
+    }
+    return 0;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is InArea && areaName == other.areaName && areaLevel == other.areaLevel;
+
+  @override
+  int get hashCode => Object.hash(areaName.hashCode, areaLevel.hashCode);
+
+  bool isContainedInAct(List<String> areas) {
+    Logger.verbose("Comparing $areaName to ${areas.join(",")}");
+    return areas.contains(areaName);
   }
 
   @override

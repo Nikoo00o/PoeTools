@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:game_tools_lib/imports.dart';
+import 'package:game_tools_lib/presentation/overlay/ui_elements/helper/editable_builder.dart';
 import 'package:poe_shared/modules/area_manager/areas.dart';
 import 'package:poe_shared/modules/player_manager/player_manager.dart';
 
@@ -27,7 +28,7 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget {
 
   factory TimerXpOverlay() {
     final TranslationString identifier = TS.raw("Timer_XP_Bar");
-    final ScaledBounds<int> bounds = ScaledBounds<int>.defaultBounds(x: 1150, y: 1290, width: 520, height: 110);
+    final ScaledBounds<int> bounds = ScaledBounds<int>.defaultBounds(x: 1294, y: 1296, width: 520, height: 108);
     final OverlayElement overlayElement =
         OverlayElement.cachedInstance(identifier) ??
         OverlayElement.storeToCache(
@@ -56,7 +57,10 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget {
         final String hours = _digits(time.inHours);
         final String minutes = _digits(time.inMinutes.remainder(60));
         final String seconds = _digits(time.inSeconds.remainder(50));
-        return Text("$hours : $minutes : $seconds", style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold));
+        return Text(
+          "$hours : $minutes : $seconds",
+          style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
+        );
       },
     );
   }
@@ -77,13 +81,16 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget {
     final String second = lvl2 != null ? "$area2($lvl2)" : "maps";
     late final String text;
     if (characterLevel != 0) {
-      text = "Char LvL $characterLevel in Area LvL$areaLvl gets $xp %XP\nFarm $area1($lvl1), then $second";
+      text = "Char LvL $characterLevel in Area LvL $areaLvl gets $xp %XP\nFarm $area1($lvl1), then $second";
     } else {
       text = "Waiting to get character level from next level up...";
     }
     return Align(
       alignment: Alignment.center,
-      child: Text(text, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
+      ),
     );
   }
 
@@ -125,5 +132,10 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget {
       ),
       child: Column(children: <Widget>[buildTop(context), const SizedBox(height: 8), buildBot(context)]),
     );
+  }
+
+  @override
+  Widget buildEdit(BuildContext context) {
+    return EditableBuilder(borderColor: Colors.purple, overlayElement: this, alsoColorizeMiddle: true, child: null);
   }
 }

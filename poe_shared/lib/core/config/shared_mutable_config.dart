@@ -6,6 +6,7 @@ import 'package:game_tools_lib/core/enums/log_level.dart';
 import 'package:game_tools_lib/core/utils/translation_string.dart';
 import 'package:game_tools_lib/core/utils/utils.dart';
 import 'package:game_tools_lib/presentation/base/gt_app_theme.dart';
+import 'package:poe_shared/modules/progress_story/config/progress_story_config.dart';
 
 base mixin SharedMutableConfig on MutableConfig {
   @override
@@ -44,6 +45,9 @@ base mixin SharedMutableConfig on MutableConfig {
     ),
   );
 
+  // managd in progress story 
+  final ProgressStoryConfigOption progressStoryConfig = ProgressStoryConfig.createOption();
+
   @override
   List<MutableConfigOption<dynamic>> getConfigurableOptions() {
     final List<MutableConfigOption<dynamic>> previous = super.getConfigurableOptions();
@@ -56,6 +60,7 @@ base mixin SharedMutableConfig on MutableConfig {
           characterNameOverride,
         ],
       ),
+      progressStoryConfig,
     ];
   }
 

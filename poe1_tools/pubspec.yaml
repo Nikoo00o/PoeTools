@@ -32,9 +32,14 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # Asset file folders to be used in this and following packages!
+  # Asset file folders to be used in this and following packages! DONT USE SPACES
   assets:
     - assets/
     - assets/locales/
     - assets/images/
     - assets/images/compare/
+    - assets/areas/
+    - assets/layouts/
+    - assets/layouts/Act_1/
+    - assets/layouts/Act_1/The_Coast/
+    - assets/layouts/Act_1/The_Tidal_Island/

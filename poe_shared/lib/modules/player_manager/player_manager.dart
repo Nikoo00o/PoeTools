@@ -27,6 +27,9 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
 
   SimpleLogInputListener? lvlListener;
 
+  // preserved until tool is closed to not open chat after each reconnect in story
+  bool _noResetPlayerNameAfterTwilight = false;
+
   @override
   TranslationString get moduleName => TS.raw("PlayerManager");
 
@@ -64,6 +67,7 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
       gameManager().addLogInputListener(lvlListener!);
     } else if (lvlListener != null) {
       gameManager().removeLogInputListener(lvlListener!);
+      lvlListener = null;
     }
   }
 
@@ -124,18 +128,29 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
   @mustCallSuper
   Future<void> onStateChange(GameState oldState, GameState newState) async {
     if (newState.isType<GameClosedState>() || newState.isType<LoginScreen>()) {
-      Logger.verbose("resetting player name and lvl");
-      _setName("");
-      characterLvl.value = 0;
+      if (_noResetPlayerNameAfterTwilight) {
+        Logger.verbose("skip player name reset because leveling run");
+      } else {
+        Logger.verbose("resetting player name and lvl");
+        _setName("");
+        characterLvl.value = 0;
+      }
     } else if (newState.isType<InArea>()) {
       final InArea area = newState.asType<InArea>();
-      if (characterName.value.isEmpty && !area.isTown && area.areaName != Areas.actZones.first.first) {
-        // twilight strand started char will be auto configured, otherwise on first not town
-        Logger.debug("Chatting to init player name..."); // dont await it here!
-        Utils.executeDelayedNoAwaitMS(
-          milliseconds: 1000,
-          callback: () async => InputManager.sendChatMessage(_chatMsg, clearFirst: true),
-        );
+      if (characterName.value.isEmpty && !area.isTown && area.isSecondPart == false) {
+        if (area.areaName == Areas.actZones.first.first) {
+          // twilight strand started char will be auto configured, otherwise on first not town enter (first reset)
+          _setName(""); // set by listener above again!
+          characterLvl.value = 0;
+          _noResetPlayerNameAfterTwilight = true;
+          Logger.debug("Twilight strand char name reset after muling");
+        } else {
+          Logger.debug("Chatting to init player name..."); // dont await it here! received in chat above
+          Utils.executeDelayedNoAwaitMS(
+            milliseconds: 1000,
+            callback: () async => InputManager.sendChatMessage(_chatMsg, clearFirst: true),
+          );
+        }
       }
     }
   }

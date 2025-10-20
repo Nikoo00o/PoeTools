@@ -41,7 +41,11 @@ abstract final class Areas {
     final Map<String, dynamic> json = _story.validContent;
     final Map<String, dynamic>? acts = json["world"] as Map<String, dynamic>?;
     if (acts != null) {
-      return acts.keys.toList();
+      final List<String> actNames = acts.keys.toList();
+      if (actNames.length != 10) {
+        throw AssetException(message: "${_story.fileName} contained an invalid number of acts");
+      }
+      return actNames;
     }
     throw AssetException(message: "${_story.fileName} did not contain acts");
   }
@@ -57,9 +61,21 @@ abstract final class Areas {
       final Map<String, List<String>> typed = acts.map(
         (String key, dynamic value) => MapEntry<String, List<String>>(key, List<String>.from(value as List<dynamic>)),
       );
-      return _actZones = typed.values.toList();
+      _actZones = typed.values.toList();
+      if (_actZones!.length != 10) {
+        throw AssetException(message: "${_story.fileName} contained an invalid number of acts");
+      }
+      return _actZones!;
     }
     throw AssetException(message: "${_story.fileName} did not contain acts");
+  }
+
+  static List<String> getZonesForAct(String actName) {
+    final int? num = int.tryParse(actName.substring("Act ".length));
+    if (num == null || num < 1 || num > 10) {
+      throw AssetException(message: "could not get zones for act: $actName");
+    }
+    return actZones.elementAt(num - 1);
   }
 
   static List<String> get hideouts {
@@ -120,4 +136,5 @@ abstract final class Areas {
     }
     return (null, null);
   }
+
 }
