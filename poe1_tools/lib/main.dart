@@ -9,6 +9,7 @@ import 'package:poe1_tools/core/poe1_log_watcher.dart';
 import 'package:poe1_tools/core/poe1_logger.dart';
 import 'package:poe1_tools/core/poe1_web_manager.dart';
 import 'package:poe_shared/core/poe_overlay_manager.dart';
+import 'package:poe_shared/data/poe_layout_converter.dart';
 
 Future<void> main() async {
   try {
@@ -24,6 +25,10 @@ Future<void> main() async {
       gameConfigLoader: Poe1ConfigLoader(filePath: cfg),
       webManager: Poe1WebManager(),
     );
+
+    //PoeLayoutConverter.runLayoutConverter();
+    //return;
+
     if (init == false) {
       Logger.error("Could not initialize PoeTools");
     } else {

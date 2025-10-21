@@ -3,12 +3,18 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:game_tools_lib/imports.dart';
 import 'package:game_tools_lib/presentation/overlay/ui_elements/helper/editable_builder.dart';
+import 'package:poe_shared/presentation/overlay/opacity_overlay_mixin.dart';
 import 'package:poe_shared/presentation/overlay_colors.dart';
 
 // only uses update to display text
-final class StoryTextOverlay extends OverlayElement with GTBaseWidget {
+final class StoryTextOverlay extends OverlayElement with GTBaseWidget, OpacityOverlayMixin {
   TextSpan? _title;
   List<TextSpan>? _content;
+
+  bool get hasContent => (_title?.text?.isNotEmpty ?? false) && (_content?.isNotEmpty ?? false);
+
+  @override
+  double get defaultOpacity => 0.45;
 
   static const String colorStart = "{";
   static const String colorEnd = "}";
@@ -27,7 +33,7 @@ final class StoryTextOverlay extends OverlayElement with GTBaseWidget {
     } else {
       _title = TextSpan(
         text: "$title: ",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       );
       _content = _parseContent(content);
       visible = true;
@@ -131,18 +137,10 @@ final class StoryTextOverlay extends OverlayElement with GTBaseWidget {
 
   @override
   Widget buildContent(BuildContext context, Bounds<double> scaledBounds) {
-    return Container(
-      width: scaledBounds.width,
-      height: scaledBounds.height,
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: colorSurface(context).withValues(alpha: 0.45),
-        border: Border.all(
-          color: colorSurface(context),
-          width: 1.0,
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
+    return buildTransparentBackground(
+      scaledBounds,
+      colorSurface(context),
+      padding: 5,
       child: buildInner(context),
     );
   }

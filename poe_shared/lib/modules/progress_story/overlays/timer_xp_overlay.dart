@@ -6,20 +6,25 @@ import 'package:game_tools_lib/imports.dart';
 import 'package:game_tools_lib/presentation/overlay/ui_elements/helper/editable_builder.dart';
 import 'package:poe_shared/modules/area_manager/areas.dart';
 import 'package:poe_shared/modules/player_manager/player_manager.dart';
+import 'package:poe_shared/presentation/overlay/opacity_overlay_mixin.dart';
 
-base class TimerXpOverlay extends OverlayElement with GTBaseWidget {
+base class TimerXpOverlay extends OverlayElement with GTBaseWidget, OpacityOverlayMixin {
   final SimpleChangeNotifier<int> areaLvl = SimpleChangeNotifier<int>(0);
   Timer? _timer;
 
   final ValueNotifier<Duration> _duration = ValueNotifier<Duration>(const Duration(seconds: 0));
 
+  @override
+  double get defaultOpacity => 0.65;
+
   void startTimer() {
     _timer ??= Timer.periodic(const Duration(seconds: 1), _addTime);
   }
 
-  void stopTimer() {
+  Duration stopTimer() {
     _timer?.cancel();
     _timer = null;
+    return _duration.value;
   }
 
   void _addTime(Timer t) {
@@ -28,7 +33,7 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget {
 
   factory TimerXpOverlay() {
     final TranslationString identifier = TS.raw("Timer_XP_Bar");
-    final ScaledBounds<int> bounds = ScaledBounds<int>.defaultBounds(x: 1294, y: 1296, width: 520, height: 108);
+    final ScaledBounds<int> bounds = ScaledBounds<int>.defaultBounds(x: 1294, y: 1321, width: 520, height: 83);
     final OverlayElement overlayElement =
         OverlayElement.cachedInstance(identifier) ??
         OverlayElement.storeToCache(
@@ -50,16 +55,20 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget {
 
   String _digits(int n) => n.toString().padLeft(2, "0");
 
+  String getTimeString(Duration time) {
+    final String hours = _digits(time.inHours);
+    final String minutes = _digits(time.inMinutes.remainder(60));
+    final String seconds = _digits(time.inSeconds.remainder(50));
+    return "$hours : $minutes : $seconds";
+  }
+
   Widget buildTop(BuildContext context) {
     return ValueListenableBuilder<Duration>(
       valueListenable: _duration,
       builder: (BuildContext context, Duration time, Widget? child) {
-        final String hours = _digits(time.inHours);
-        final String minutes = _digits(time.inMinutes.remainder(60));
-        final String seconds = _digits(time.inSeconds.remainder(50));
         return Text(
-          "$hours : $minutes : $seconds",
-          style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
+          getTimeString(time),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
         );
       },
     );
@@ -89,7 +98,7 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget {
       alignment: Alignment.center,
       child: Text(
         text,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
       ),
     );
   }
@@ -118,19 +127,10 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget {
 
   @override
   Widget buildContent(BuildContext context, Bounds<double> scaledBounds) {
-    return Container(
-      width: scaledBounds.width,
-      height: scaledBounds.height,
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: colorSurface(context).withValues(alpha: 0.65),
-        border: Border.all(
-          color: colorSurface(context),
-          width: 1.0,
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(children: <Widget>[buildTop(context), const SizedBox(height: 8), buildBot(context)]),
+    return buildTransparentBackground(
+      scaledBounds,
+      colorSurface(context),
+      child: Column(children: <Widget>[buildTop(context), const SizedBox(height: 1), buildBot(context)]),
     );
   }
 

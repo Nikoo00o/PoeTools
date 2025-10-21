@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart' show mustCallSuper;
+import 'package:flutter/foundation.dart' show mustCallSuper, protected;
 import 'package:game_tools_lib/core/config/mutable_config.dart';
 import 'package:game_tools_lib/core/utils/utils.dart';
 import 'package:game_tools_lib/domain/game/game_window.dart';
@@ -15,6 +15,7 @@ import 'package:poe_shared/domain/states/login_screen.dart';
 import 'package:poe_shared/modules/area_manager/areas.dart';
 
 // contains all open panels, etc and character name, etc
+// should poe1 and poe2 inherit with sub classes from this, or add listener?
 base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
   static const String _chatMsg = ",";
 
@@ -97,7 +98,43 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
 
   @override
   @mustCallSuper
-  List<BaseInputListener<dynamic>> getAdditionalInputListener() => <BaseInputListener<dynamic>>[];
+  List<BaseInputListener<dynamic>> getAdditionalInputListener() => <BaseInputListener<dynamic>>[
+    KeyInputListener(
+      configLabel: TS.raw("Relog Key"),
+      configLabelDescription: TS.raw("Press this to relog for faster story progress"),
+      createEventCallback: () {
+        _noResetPlayerNameAfterTwilight = true;
+        return performRelog();
+      },
+      alwaysCreateNewEvents: true,
+      defaultKey: BoardKey.s.restrictive.copyWith(withAlt: true),
+    ),
+    KeyInputListener(
+      configLabel: TS.raw("Hideout Key"),
+      configLabelDescription: TS.raw("Use this to go to your hideout faster"),
+      createEventCallback: goToHideout,
+      alwaysCreateNewEvents: true,
+      defaultKey: BoardKey.f.restrictive.copyWith(withAlt: true),
+    ),
+  ];
+
+  // before the twilight strand reset player name is also disabled
+  @protected
+  GameEvent? performRelog() {
+    Logger.info("Relogging");
+    // TODO: no panel checks at all here at the moment :(  BETTER MAKE EVENT FOR IT. WINDOW FOCUS IS ALREADY CHECKED
+    //  HERE
+    InputManager.sendChatMessage("/exit");
+    return null;
+  }
+
+  @protected
+  GameEvent? goToHideout() {
+    Logger.info("Going to hideout");
+    // TODO: no panel checks at all here at the moment :( BETTER MAKE EVENT FOR IT
+    InputManager.sendChatMessage("/hideout");
+    return null;
+  }
 
   @override
   @mustCallSuper
@@ -147,8 +184,12 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
         } else {
           Logger.debug("Chatting to init player name..."); // dont await it here! received in chat above
           Utils.executeDelayedNoAwaitMS(
-            milliseconds: 1000,
-            callback: () async => InputManager.sendChatMessage(_chatMsg, clearFirst: true),
+            milliseconds: 800,
+            callback: () async {
+              if (GameToolsLib.mainGameWindow.hasFocus) {
+                await InputManager.sendChatMessage(_chatMsg, clearFirst: true);
+              }
+            },
           );
         }
       }

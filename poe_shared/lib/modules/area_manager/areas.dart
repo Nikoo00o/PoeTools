@@ -36,10 +36,27 @@ abstract final class Areas {
     throw AssetException(message: "${_story.fileName} did not contain towns");
   }
 
+  static Map<String, dynamic>? get _world {
+    final Map<String, dynamic> json = _story.validContent;
+    return json["world"] as Map<String, dynamic>?;
+  }
+
+  static Map<String, List<String>> get _typedWorld {
+    final Map<String, dynamic>? acts = _world;
+    if (acts != null) {
+      if (acts.keys.length != 10) {
+        throw AssetException(message: "${_story.fileName} contained an invalid number of acts");
+      }
+      return acts.map(
+        (String key, dynamic value) => MapEntry<String, List<String>>(key, List<String>.from(value as List<dynamic>)),
+      );
+    }
+    throw AssetException(message: "${_story.fileName} did not contain acts");
+  }
+
   // does not contain towns, should be correct order (0 is Act1)
   static List<String> get actNames {
-    final Map<String, dynamic> json = _story.validContent;
-    final Map<String, dynamic>? acts = json["world"] as Map<String, dynamic>?;
+    final Map<String, dynamic>? acts = _world;
     if (acts != null) {
       final List<String> actNames = acts.keys.toList();
       if (actNames.length != 10) {
@@ -55,19 +72,24 @@ abstract final class Areas {
   // does not contain towns, should be correct order (0 is Act1)
   static List<List<String>> get actZones {
     if (_actZones != null) return _actZones!;
-    final Map<String, dynamic> json = _story.validContent;
-    final Map<String, dynamic>? acts = json["world"] as Map<String, dynamic>?;
-    if (acts != null) {
-      final Map<String, List<String>> typed = acts.map(
-        (String key, dynamic value) => MapEntry<String, List<String>>(key, List<String>.from(value as List<dynamic>)),
-      );
-      _actZones = typed.values.toList();
-      if (_actZones!.length != 10) {
-        throw AssetException(message: "${_story.fileName} contained an invalid number of acts");
+    final Map<String, List<String>> acts = _typedWorld;
+    _actZones = acts.values.toList();
+    return _actZones!;
+  }
+
+  static List<(String, String)>? _actZonesList;
+
+  // returns (Act, Zone) as list
+  static List<(String, String)> get actZonesList {
+    if (_actZonesList != null) return _actZonesList!;
+    final List<(String, String)> results = <(String, String)>[];
+    final Map<String, List<String>> acts = _typedWorld;
+    for (final String act in acts.keys) {
+      for (final String zone in acts[act]!) {
+        results.add((act, zone));
       }
-      return _actZones!;
     }
-    throw AssetException(message: "${_story.fileName} did not contain acts");
+    return _actZonesList = results;
   }
 
   static List<String> getZonesForAct(String actName) {
@@ -136,5 +158,4 @@ abstract final class Areas {
     }
     return (null, null);
   }
-
 }

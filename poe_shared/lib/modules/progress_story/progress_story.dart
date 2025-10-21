@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:game_tools_lib/core/config/mutable_config.dart';
 import 'package:game_tools_lib/core/utils/utils.dart';
@@ -14,6 +12,7 @@ import 'package:poe_shared/modules/area_manager/areas.dart';
 import 'package:poe_shared/modules/area_manager/layout_asset.dart';
 import 'package:poe_shared/modules/progress_story/config/act_config.dart';
 import 'package:poe_shared/modules/progress_story/config/progress_story_config.dart';
+import 'package:poe_shared/modules/progress_story/config/progression_info.dart';
 import 'package:poe_shared/modules/progress_story/overlays/layout_overlay.dart';
 import 'package:poe_shared/modules/progress_story/overlays/story_text_overlay.dart';
 import 'package:poe_shared/modules/progress_story/overlays/timer_xp_overlay.dart';
@@ -27,11 +26,14 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
   late StoryTextOverlay _actInfo;
   late StoryTextOverlay _areaInfo;
 
+  late StoryTextOverlay _progressCur;
+  late StoryTextOverlay _progressNext;
+
   // zero based so 0 is act 1. never goes back
   int _currentAct = 0;
 
-  // step from act
-  int _currentProgressionStep = 0;
+  // step from act (will stay after logging out until end of program!)
+  int _currentProgressionStep = -1;
 
   // only one cached at a time
   LayoutAsset? _currentLayouts;
@@ -59,36 +61,45 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
     _timerXp = TimerXpOverlay();
     _actInfo = StoryTextOverlay(
       TS.raw("General Act Info"),
-      ScaledBounds<int>.defaultBounds(x: 747, y: 1296, width: 530, height: 108),
+      ScaledBounds<int>.defaultBounds(x: 747, y: 1324, width: 530, height: 80),
     );
     _areaInfo = StoryTextOverlay(
       TS.raw("General Area Info"),
-      ScaledBounds<int>.defaultBounds(x: 1134, y: 1093, width: 681, height: 185),
+      ScaledBounds<int>.defaultBounds(x: 1113, y: 1149, width: 681, height: 158),
+    );
+    _progressCur = StoryTextOverlay(
+      TS.raw("Current Story Progression"),
+      ScaledBounds<int>.defaultBounds(x: 1147, y: 4, width: 681, height: 185),
+    );
+    _progressNext = StoryTextOverlay(
+      TS.raw("Next Story Progression"),
+      ScaledBounds<int>.defaultBounds(x: 1150, y: 203, width: 681, height: 185),
     );
 
-    const int startX = 10;
-    int x = startX;
-    int y = 10;
+    _addDefaultLayoutOverlays();
+    await _fillEmptyDefaultConfigIfNeeded();
+  }
+
+  void _addDefaultLayoutOverlays() {
+    const int x = 10;
+    const int y = 10;
     const int width = 360;
     const int height = 318;
-    for (int i = 0; i < 12; ++i) {
+    const int elementCount = 12;
+    const int startRow = 1; // second row first
+    for (int i = 0; i < elementCount; ++i) {
       _layoutOverlays.add(
         LayoutOverlay(
           TS.raw("Area Layout ${i + 1}"),
-          ScaledBounds<int>.defaultBounds(x: x, y: y, width: width, height: height),
+          ScaledBounds<int>.defaultBounds(
+            x: (x + (i % 3) * width) % (width * 3),
+            y: (y + (i ~/ 3 + startRow) * height) % (height * 4),
+            width: width,
+            height: height,
+          ),
         ),
       );
-      if (i % 3 < 2) {
-        x += width;
-      } else {
-        y += height;
-        x = startX;
-      }
     }
-
-    // todo: add 11
-
-    await _fillEmptyDefaultConfigIfNeeded();
   }
 
   Future<void> _fillEmptyDefaultConfigIfNeeded() async {
@@ -140,7 +151,7 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
     }
   }
 
-  // only if old state was not the same!
+  // only if old state was not the same! area will always be story zone or town
   Future<void> _onStoryArea(InArea area, GameState oldState, InArea? oldArea) async {
     final int newAct = area.actForStoryZone;
     final String actName = progressStoryConfig.actNotes.keys.elementAtOrNull(newAct) ?? "";
@@ -148,19 +159,47 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
       Logger.info("Progressed from Act ${_currentAct + 1} to $actName!");
       _currentAct = newAct;
     }
-    _updateTimerWithArea(area);
+    final (ProgressionInfo? first, ProgressionInfo? second) = _updateAndGetProgressionInfo(actName, area);
 
+    _updateTimerWithArea(area);
     final ActConfig actConfig = progressStoryConfig.actNotes[actName]!;
     _updateGeneralInfoWithArea(area, actName, actConfig); // also updates progression info
-    _updateProgressionInfo(area, actConfig);
+    _updateProgressionOverlays(first, second, area);
     await _updateLayouts(area, actName);
   }
 
-  // does not reset progression
+  (ProgressionInfo? first, ProgressionInfo? second) _updateAndGetProgressionInfo(String actName, InArea area) {
+    ProgressionInfo? firstProgression;
+    ProgressionInfo? secondProgression;
+    final List<ProgressionInfo> progressions = progressStoryConfig.progressionInfo;
+    for (int i = _currentProgressionStep + 1; i < progressions.length; i++) {
+      final ProgressionInfo progression = progressions[i]; // initial -1 so 0, only check > cur
+      if (progression.parentAct == actName && progression.triggerArea == area.areaName) {
+        if (_currentProgressionStep > -1) {
+          firstProgression = progressions[_currentProgressionStep];
+        }
+        Logger.info("Progressed from $firstProgression to $progression");
+        _currentProgressionStep = i;
+        firstProgression = progression;
+        if (i < progressStoryConfig.progressionInfo.length - 1) {
+          secondProgression = progressStoryConfig.progressionInfo[i + 1];
+        } else {
+          secondProgression = null;
+        }
+        break;
+      }
+    }
+    return (firstProgression, secondProgression);
+  }
+
+  // does not reset progression variables
   void _disableOnNoStoryArea() {
     _timerXp.visible = false;
     _actInfo.update("", "");
     _areaInfo.update("", "");
+    _progressCur.visible = false;
+    _progressNext.visible = false;
+    _clearLayouts(); // also clear layouts
   }
 
   void _updateTimerWithArea(InArea area) {
@@ -169,7 +208,8 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
     if (area.areaName == Areas.actZones.first.first && !area.isSecondPart) {
       _timerXp.startTimer(); // twilight strand
     } else if (area.areaName == Areas.towns.last) {
-      _timerXp.stopTimer(); // karui shores
+      final String time = _timerXp.getTimeString(_timerXp.stopTimer()); // karui shores
+      Logger.present("Finished the campaign / story in $time");
     }
   }
 
@@ -178,13 +218,25 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
       _actInfo.update(act, actConfig.actInfo);
       _areaInfo.update(area.areaName, actConfig.areaInfo[area.areaName] ?? "");
     } else {
-      _actInfo.update("", "");
+      _actInfo.update("", ""); // dont display in town
       _areaInfo.update("", "");
     }
   }
 
-  void _updateProgressionInfo(InArea area, ActConfig actConfig) {
-    // only change if something changed? also has to update progression step! check story zone or town?
+  // only called when it changes and needs updating
+  void _updateProgressionOverlays(ProgressionInfo? firstProgression, ProgressionInfo? secondProgression, InArea area) {
+    if (firstProgression != null) {
+      final bool secondAvailable = secondProgression != null; // change values
+      _progressCur.update("1. ${firstProgression.triggerArea}", firstProgression.infoText);
+      if (secondAvailable) {
+        _progressNext.update("2. ${secondProgression.triggerArea}", secondProgression.infoText);
+      } else {
+        _progressNext.update("", "");
+      }
+    } else if (_currentProgressionStep > -1) {
+      if (_progressCur.visible == false) _progressCur.visible = true; // only update visible again
+      if (_progressNext.visible == false && _progressNext.hasContent) _progressNext.visible = true;
+    }
   }
 
   Future<void> _updateLayouts(InArea area, String actName) async {
@@ -202,12 +254,16 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
         }
       }
     } else {
-      for (int i = 0; i < _layoutOverlays.length; ++i) {
-        _layoutOverlays[i].update(null, "");
-      }
-      _currentLayouts?.cleanup();
-      _currentLayouts = null;
+      _clearLayouts(); // dont show in town!
     }
+  }
+
+  void _clearLayouts() {
+    for (int i = 0; i < _layoutOverlays.length; ++i) {
+      _layoutOverlays[i].update(null, "");
+    }
+    _currentLayouts?.cleanup();
+    _currentLayouts = null;
   }
 
   /// Shortcut to use this

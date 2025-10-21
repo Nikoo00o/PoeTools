@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:game_tools_lib/core/utils/translation_string.dart';
+import 'package:game_tools_lib/game_tools_lib.dart';
 import 'package:game_tools_lib/presentation/pages/settings/config_option_builder_types.dart';
+import 'package:game_tools_lib/presentation/pages/settings/gt_list_editor.dart';
 import 'package:poe_shared/modules/area_manager/areas.dart';
 import 'package:poe_shared/modules/progress_story/config/act_config.dart';
 import 'package:poe_shared/modules/progress_story/config/progress_story_config.dart';
@@ -11,14 +13,15 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
     required super.configOption,
   });
 
-  Widget _buildFormField(String? initialValue, void Function(String) onChanged) {
+  Widget _buildFormField(String? initialValue, void Function(String) onChanged, {String? hint}) {
     return TextFormField(
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         border: InputBorder.none,
         focusedBorder: InputBorder.none,
         enabledBorder: InputBorder.none,
         errorBorder: InputBorder.none,
         disabledBorder: InputBorder.none,
+        hintText: hint,
       ),
       minLines: 1,
       maxLines: 20,
@@ -28,21 +31,129 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
     );
   }
 
+  Widget buildProgressionElement(BuildContext context, ProgressionInfo info, ProgressStoryConfig model) {
+    return Column(
+      children: <Widget>[
+        _buildFormField(info.infoText, (String newText) {
+          info.infoText = newText;
+          configOption.setValue(model);
+        }, hint: "enter general info to be shown in overlay until next step..."),
+      ],
+    );
+  }
+
+  Widget _buildList(
+    int offset,
+    String act,
+    List<String> zones,
+    ProgressStoryConfig model,
+    void Function(int index, String act, String zone) onSelect,
+    int selectedIndex,
+  ) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: zones.length,
+      itemBuilder: (_, int index) {
+        final bool selected = selectedIndex == index + offset;
+        if (selected) {
+          Logger.verbose("$act and ${zones[index]} selected! for $selectedIndex and $index + $offset");
+        }
+        return Card(
+          child: ListTile(
+            enabled: model.progressionInfo
+                .where((ProgressionInfo info) => info.parentAct == act && info.triggerArea == zones[index])
+                .isEmpty,
+            title: Text(zones[index]),
+            trailing: selected ? const Icon(Icons.check) : null,
+            onTap: () => onSelect(index + offset, act, zones[index]),
+            selected: selected,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildProgressionCreation(
+    BuildContext context,
+    ProgressionInfo? oldElement,
+    GTListOnElementUpdate<ProgressionInfo> onElementUpdate,
+    ProgressStoryConfig model,
+  ) {
+    final List<(String, String)> zones = Areas.actZonesList;
+    final List<List<String>> listsPerAct = Areas.actZones;
+    final List<String> actNames = Areas.actNames;
+    int selectedIndex = -1;
+    if (oldElement != null) {
+      selectedIndex = zones.indexWhere(
+        ((String, String) el) => oldElement.parentAct == el.$1 && oldElement.triggerArea == el.$2,
+      );
+    }
+    return SingleChildScrollView(
+      child: SizedBox(
+        width: 600,
+        child: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            onSelect(int index, String act, String zone) {
+              setState(() => selectedIndex = selectedIndex == index ? -1 : index);
+              final ProgressionInfo newEl = oldElement ?? ProgressionInfo.empty();
+              newEl.parentAct = act;
+              newEl.triggerArea = zone;
+              onElementUpdate.call(newEl);
+              Logger.spam("Selected $newEl");
+            }
+
+            final List<Widget> children = <Widget>[];
+            int offset = 0;
+            for (int i = 0; i < listsPerAct.length; ++i) {
+              final List<String> subList = listsPerAct.elementAt(i);
+              final String act = actNames.elementAt(i);
+              final int myOffset = offset;
+              children.add(
+                buildSimpleExpansionTile<String>(
+                  title: TS.raw(act),
+                  element: "",
+                  buildElement: (BuildContext context, _) =>
+                      _buildList(myOffset, act, subList, model, onSelect, selectedIndex),
+                ),
+              );
+              offset += subList.length;
+            }
+            return Column(children: children);
+          },
+        ),
+      ),
+    );
+  }
+
   Widget buildProgressionInfo(BuildContext context, ProgressStoryConfig model) {
-    return buildListOptionSimple(
+    return buildListOption<ProgressionInfo>(
       title: TS.raw("Story Progression Steps"),
       description: TS.raw(
         "Independent from Acts, you add info to be displayed after entering a specific area the "
-        "first time until the next progression area is entered for the first time",
+        "first time until the next progression area is entered for the first time. DON'T EDIT THIS WHILE PROGRESSING "
+        "THE STORY",
       ),
-
       elements: model.progressionInfo,
-      addNewElementCallback: (int length) async {
-        return ProgressionInfo(infoText: "", triggerArea: "");
+      buildEditButtons: true,
+      onChange: () {
+        model.progressionInfo.sort((ProgressionInfo i1, ProgressionInfo i2) => i1.posInStory.compareTo(i2.posInStory));
+        configOption.setValue(model);
       },
-      deleteButton: true,
+      buildCreateOrEditDialog:
+          (
+            BuildContext context,
+            ProgressionInfo? oldElement,
+            int elementNumber,
+            GTListOnElementUpdate<ProgressionInfo> onElementUpdate,
+          ) => buildProgressionCreation(context, oldElement, onElementUpdate, model),
       buildElement: (BuildContext context, ProgressionInfo info, int elementNumber) {
-        return Text("test test test ");
+        return buildSimpleExpansionTile(
+          key: ValueKey<ProgressionInfo>(info),
+          title: TS.raw("${info.parentAct}: ${info.triggerArea}"),
+          element: info,
+          buildElement: (BuildContext context, ProgressionInfo info) => buildProgressionElement(context, info, model),
+        );
       },
     );
   }
