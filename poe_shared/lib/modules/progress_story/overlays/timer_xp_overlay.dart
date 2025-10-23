@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:game_tools_lib/imports.dart';
 import 'package:game_tools_lib/presentation/overlay/ui_elements/helper/editable_builder.dart';
 import 'package:poe_shared/modules/area_manager/areas.dart';
+import 'package:poe_shared/modules/player_manager/player_data.dart';
 import 'package:poe_shared/modules/player_manager/player_manager.dart';
 import 'package:poe_shared/presentation/overlay/opacity_overlay_mixin.dart';
+import 'package:provider/provider.dart';
 
 base class TimerXpOverlay extends OverlayElement with GTBaseWidget, OpacityOverlayMixin {
   final SimpleChangeNotifier<int> areaLvl = SimpleChangeNotifier<int>(0);
@@ -14,10 +16,15 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget, OpacityOverl
 
   final ValueNotifier<Duration> _duration = ValueNotifier<Duration>(const Duration(seconds: 0));
 
+  static const int maxLevelInStory = 64;
+
   @override
   double get defaultOpacity => 0.65;
 
-  void startTimer() {
+  void startTimer([int? initialMilliseconds]) {
+    if (initialMilliseconds != null) {
+      _duration.value = Duration(milliseconds: initialMilliseconds);
+    }
     _timer ??= Timer.periodic(const Duration(seconds: 1), _addTime);
   }
 
@@ -29,7 +36,10 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget, OpacityOverl
 
   void _addTime(Timer t) {
     _duration.value = Duration(seconds: _duration.value.inSeconds + 1);
+    PlayerManager.playerManager().playerData.timerMilliseconds = _duration.value.inMilliseconds; // also store time!
   }
+
+  bool get isStarted => _timer?.isActive ?? false;
 
   factory TimerXpOverlay() {
     final TranslationString identifier = TS.raw("Timer_XP_Bar");
@@ -82,33 +92,36 @@ base class TimerXpOverlay extends OverlayElement with GTBaseWidget, OpacityOverl
     return (max(inner, 0.01) * 100).toInt();
   }
 
-  Widget buildInnerBot(BuildContext context, int areaLvl, int characterLevel) {
-    final int xp = _getXp(areaLvl, characterLevel);
-    final (int lvl1, String area1) = Areas.getPrevXpZone(characterLevel);
-    final (int? lvl2, String? area2) = Areas.getNextXpZone(characterLevel);
-    Areas.getNextXpZone(characterLevel);
-    final String second = lvl2 != null ? "$area2($lvl2)" : "maps";
-    late final String text;
-    if (characterLevel != 0) {
-      text = "Char LvL $characterLevel in Area LvL $areaLvl gets $xp %XP\nFarm $area1($lvl1), then $second";
+  Widget buildInnerBot(BuildContext context, int areaLvl, int? characterLevel) {
+    final StringBuffer text = StringBuffer();
+    if (characterLevel == null) {
+      text.write("Waiting to get character level from next level up...");
     } else {
-      text = "Waiting to get character level from next level up...";
+      final int xp = _getXp(areaLvl, characterLevel);
+      text.write("Char LvL $characterLevel in Area LvL $areaLvl gets $xp %XP");
+      if (characterLevel < maxLevelInStory) {
+        final (int lvl1, String area1) = Areas.getPrevXpZone(characterLevel);
+        final (int? lvl2, String? area2) = Areas.getNextXpZone(characterLevel);
+        final String second = lvl2 != null ? "$area2($lvl2)" : "maps";
+        text.write("\nFarm $area1($lvl1), then $second");
+      }
     }
+
     return Align(
       alignment: Alignment.center,
       child: Text(
-        text,
+        text.toString(),
         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
       ),
     );
   }
 
   Widget buildWithArea(BuildContext context, int areaLvl) {
-    return UIHelper.simpleValueProvider(
-      value: PlayerManager.playerManager().characterLvl,
-      child: UIHelper.simpleConsumer<int>(
-        builder: (BuildContext context, int characterLevel, Widget? child) {
-          return buildInnerBot(context, areaLvl, characterLevel);
+    return ChangeNotifierProvider<PlayerData>.value(
+      value: PlayerManager.playerManager().playerData,
+      child: Consumer<PlayerData>(
+        builder: (BuildContext context, PlayerData playerData, Widget? child) {
+          return buildInnerBot(context, areaLvl, playerData.characterLvl);
         },
       ),
     );

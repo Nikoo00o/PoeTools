@@ -57,7 +57,7 @@ final class InArea extends GameState {
     return "Area";
   }
 
-  // just returns 0 if not story zone (also for towns). exception if story zone not found
+  // just returns -1 if not story zone (for towns 0!). exception if story zone not found
   /// ZERO BASED ACCESS!!!
   int get actForStoryZone {
     if (isStoryZone) {
@@ -76,8 +76,10 @@ final class InArea extends GameState {
         }
       }
       throw AssetException(message: "Could not find zone $areaName in acts $acts");
+    } else if (isTown) {
+      return 0;
     }
-    return 0;
+    return -1;
   }
 
   @override

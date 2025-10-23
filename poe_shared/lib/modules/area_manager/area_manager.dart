@@ -13,6 +13,9 @@ base class AreaManager<GM extends GameManagerBaseType> extends Module<GM> {
   int _lastAreaLvl = 0;
   String? _connectDomain;
 
+  // used for delayed enter
+  String? _lastArea;
+
   @override
   TranslationString get moduleName => TS.raw("AreaManager");
 
@@ -27,7 +30,7 @@ base class AreaManager<GM extends GameManagerBaseType> extends Module<GM> {
     // this seems to also track "Abnormal disconnect: An unexpected disconnection occurred."
     // and also "Abnormal disconnect: The operation timed out."
     SimpleLogInputListener.instant(
-      matchBeforeRegex: "",
+      matchBeforeRegex: PoeLogWatcher.infoStart,
       matchAfterRegex: r"\[SCENE\] Set Source \[\(unknown\)\]",
       quickAction: onEnterLoginScreen,
       shouldStopOldLineHandling: true,
@@ -40,7 +43,12 @@ base class AreaManager<GM extends GameManagerBaseType> extends Module<GM> {
     SimpleLogInputListener.instant(
       matchBeforeRegex: "${PoeLogWatcher.infoStart}: You have entered ",
       matchAfterRegex: r"\.",
-      quickAction: onEnterArea,
+      quickAction: onEnterAreaLoad,
+    ),
+    SimpleLogInputListener.instant(
+      matchBeforeRegex: "${PoeLogWatcher.infoStart}\\[SHADER\\] Delay:",
+      matchAfterRegex: null,
+      quickAction: onAreaLoadFinished,
     ),
     SimpleLogInputListener.instant(
       matchBeforeRegex: "${PoeLogWatcher.debugStart}Generating level ",
@@ -75,10 +83,20 @@ base class AreaManager<GM extends GameManagerBaseType> extends Module<GM> {
   }
 
   @protected
-  void onEnterArea(String name) {
-    gameManager().changeState(InArea(areaName: name, areaLevel: _lastAreaLvl));
-    _lastAreaLvl = 0;
-    _connectDomain = null;
+  void onEnterAreaLoad(String name) {
+    Logger.verbose("Enter area log (waiting for load finish): $name");
+    _lastArea = name;
+    currentState.isLoading = true; // the last state is loading
+  }
+
+  @protected
+  void onAreaLoadFinished(String onOrOff) {
+    if (_lastArea != null) {
+      gameManager().changeState(InArea(areaName: _lastArea!, areaLevel: _lastAreaLvl));
+      _lastArea = null; // shader log triggers more often, so only take those after area was set
+      _lastAreaLvl = 0;
+      _connectDomain = null;
+    }
   }
 
   @override

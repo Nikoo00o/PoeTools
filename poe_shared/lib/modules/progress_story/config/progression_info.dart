@@ -10,6 +10,7 @@ final class ProgressionInfo implements Model {
 
   String triggerArea;
 
+  // for maps would be empty
   String parentAct;
 
   String infoText;

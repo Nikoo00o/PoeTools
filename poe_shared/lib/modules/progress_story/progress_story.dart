@@ -10,6 +10,8 @@ import 'package:poe_shared/core/config/shared_mutable_config.dart';
 import 'package:poe_shared/domain/states/in_area.dart';
 import 'package:poe_shared/modules/area_manager/areas.dart';
 import 'package:poe_shared/modules/area_manager/layout_asset.dart';
+import 'package:poe_shared/modules/player_manager/player_data.dart';
+import 'package:poe_shared/modules/player_manager/player_manager.dart';
 import 'package:poe_shared/modules/progress_story/config/act_config.dart';
 import 'package:poe_shared/modules/progress_story/config/progress_story_config.dart';
 import 'package:poe_shared/modules/progress_story/config/progression_info.dart';
@@ -17,28 +19,17 @@ import 'package:poe_shared/modules/progress_story/overlays/layout_overlay.dart';
 import 'package:poe_shared/modules/progress_story/overlays/story_text_overlay.dart';
 import 'package:poe_shared/modules/progress_story/overlays/timer_xp_overlay.dart';
 
-base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
+part 'parts/progress_story_overlays.dart';
+
+base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> with _ProgressStoryOverlays<GM> {
   @override
   TranslationString get moduleName => TS.raw("Story Progression");
-
-  late TimerXpOverlay _timerXp;
-
-  late StoryTextOverlay _actInfo;
-  late StoryTextOverlay _areaInfo;
-
-  late StoryTextOverlay _progressCur;
-  late StoryTextOverlay _progressNext;
 
   // zero based so 0 is act 1. never goes back
   int _currentAct = 0;
 
   // step from act (will stay after logging out until end of program!)
   int _currentProgressionStep = -1;
-
-  // only one cached at a time
-  LayoutAsset? _currentLayouts;
-
-  final List<LayoutOverlay> _layoutOverlays = <LayoutOverlay>[];
 
   // used only to access read
   ProgressStoryConfig get progressStoryConfig => SharedMutableConfig.instance.progressStoryConfig.cachedValueNotNull();
@@ -58,48 +49,8 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
   @override
   @mustCallSuper
   Future<void> onStart() async {
-    _timerXp = TimerXpOverlay();
-    _actInfo = StoryTextOverlay(
-      TS.raw("General Act Info"),
-      ScaledBounds<int>.defaultBounds(x: 747, y: 1324, width: 530, height: 80),
-    );
-    _areaInfo = StoryTextOverlay(
-      TS.raw("General Area Info"),
-      ScaledBounds<int>.defaultBounds(x: 1113, y: 1149, width: 681, height: 158),
-    );
-    _progressCur = StoryTextOverlay(
-      TS.raw("Current Story Progression"),
-      ScaledBounds<int>.defaultBounds(x: 1147, y: 4, width: 681, height: 185),
-    );
-    _progressNext = StoryTextOverlay(
-      TS.raw("Next Story Progression"),
-      ScaledBounds<int>.defaultBounds(x: 1150, y: 203, width: 681, height: 185),
-    );
-
-    _addDefaultLayoutOverlays();
+    await super.onStart();
     await _fillEmptyDefaultConfigIfNeeded();
-  }
-
-  void _addDefaultLayoutOverlays() {
-    const int x = 10;
-    const int y = 10;
-    const int width = 360;
-    const int height = 318;
-    const int elementCount = 12;
-    const int startRow = 1; // second row first
-    for (int i = 0; i < elementCount; ++i) {
-      _layoutOverlays.add(
-        LayoutOverlay(
-          TS.raw("Area Layout ${i + 1}"),
-          ScaledBounds<int>.defaultBounds(
-            x: (x + (i % 3) * width) % (width * 3),
-            y: (y + (i ~/ 3 + startRow) * height) % (height * 4),
-            width: width,
-            height: height,
-          ),
-        ),
-      );
-    }
   }
 
   Future<void> _fillEmptyDefaultConfigIfNeeded() async {
@@ -113,7 +64,9 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
 
   @override
   @mustCallSuper
-  Future<void> onStop() async {}
+  Future<void> onStop() async {
+    await super.onStop();
+  }
 
   @override
   @mustCallSuper
@@ -132,51 +85,63 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
   Future<void> onStateChange(GameState oldState, GameState newState) async {
     if (newState.isType<InArea>()) {
       final InArea area = newState.asType<InArea>();
-      if (area.isTown || area.isStoryZone) {
-        if (oldState.isType<InArea>()) {
-          final InArea oldArea = oldState.asType<InArea>();
-          if (area != oldArea) {
-            await _onStoryArea(area, oldState, oldArea);
-          } else {
-            Logger.verbose("Skipped rejoining same area $area sub state"); // skip sub states!!!
-          }
+      if (oldState.isType<InArea>()) {
+        final InArea oldArea = oldState.asType<InArea>();
+        if (area != oldArea) {
+          await _onNextArea(area, oldState, oldArea);
         } else {
-          await _onStoryArea(area, oldState, null);
+          Logger.verbose("Skipped rejoining same area $area sub state"); // skip sub states!!!
         }
       } else {
-        _disableOnNoStoryArea();
+        await _onNextArea(area, oldState, null);
       }
     } else {
-      _disableOnNoStoryArea();
+      _disableOverlays();
     }
   }
 
-  // only if old state was not the same! area will always be story zone or town
-  Future<void> _onStoryArea(InArea area, GameState oldState, InArea? oldArea) async {
-    final int newAct = area.actForStoryZone;
-    final String actName = progressStoryConfig.actNotes.keys.elementAtOrNull(newAct) ?? "";
+  // only if old state was not the same! area can be of any!
+  Future<void> _onNextArea(InArea area, GameState oldState, InArea? oldArea) async {
+    final int newAct = area.actForStoryZone; // -1 / empty for maps
+    final String actName = newAct < 0 ? "" : progressStoryConfig.actNotes.keys.elementAt(newAct);
     if (newAct > _currentAct) {
       Logger.info("Progressed from Act ${_currentAct + 1} to $actName!");
       _currentAct = newAct;
     }
-    final (ProgressionInfo? first, ProgressionInfo? second) = _updateAndGetProgressionInfo(actName, area);
-
-    _updateTimerWithArea(area);
-    final ActConfig actConfig = progressStoryConfig.actNotes[actName]!;
-    _updateGeneralInfoWithArea(area, actName, actConfig); // also updates progression info
-    _updateProgressionOverlays(first, second, area);
-    await _updateLayouts(area, actName);
+    _updateProgressionWithArea(area, actName); // only visible in town and story zones
+    _updateTimerWithArea(area); // visible in any zone
+    _updateGeneralInfoWithArea(area, actName); // depends on story vs maps inside
+    await _updateLayouts(area, actName); // depends on story vs maps inside
   }
 
-  (ProgressionInfo? first, ProgressionInfo? second) _updateAndGetProgressionInfo(String actName, InArea area) {
+  // uses _updateAndGetProgressionInfo to update progression step
+  void _updateProgressionWithArea(InArea area, String actName) {
+    if (area.isStoryZone || area.isTown) {
+      final (ProgressionInfo? first, ProgressionInfo? second) = _updateAndGetProgressionInfo(actName, area.areaName);
+      if (first != null) {
+        Logger.spam("update prog overlay for ", first, " and ", second, " in ", area);
+        _updateNextProgressionOverlay(first, second);
+      } else if (_currentProgressionStep > -1) {
+        Logger.spam("visible prog overlay for ", _currentProgressionStep, " in ", area);
+        _makeNextProgressionOverlayVisible();
+      }
+    } else {
+      Logger.spam("hide prog overlay in ", area);
+      _hideProgressionOverlay();
+    }
+  }
+
+  // for maps actName would be empty. only returns if new progression step was found, otherwise first is null!
+  // second might still be null at the end (because there isnt one more). changes _currentProgressionSteps!
+  (ProgressionInfo? first, ProgressionInfo? second) _updateAndGetProgressionInfo(String actName, String areaName) {
     ProgressionInfo? firstProgression;
     ProgressionInfo? secondProgression;
-    final List<ProgressionInfo> progressions = progressStoryConfig.progressionInfo;
-    for (int i = _currentProgressionStep + 1; i < progressions.length; i++) {
-      final ProgressionInfo progression = progressions[i]; // initial -1 so 0, only check > cur
-      if (progression.parentAct == actName && progression.triggerArea == area.areaName) {
+    final List<ProgressionInfo> progressionSteps = progressStoryConfig.progressionInfo;
+    for (int i = _currentProgressionStep + 1; i < progressionSteps.length; i++) {
+      final ProgressionInfo progression = progressionSteps[i]; // initial -1 so 0, only check > cur
+      if (progression.parentAct == actName && progression.triggerArea == areaName) {
         if (_currentProgressionStep > -1) {
-          firstProgression = progressions[_currentProgressionStep];
+          firstProgression = progressionSteps[_currentProgressionStep];
         }
         Logger.info("Progressed from $firstProgression to $progression");
         _currentProgressionStep = i;
@@ -192,78 +157,48 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> {
     return (firstProgression, secondProgression);
   }
 
-  // does not reset progression variables
-  void _disableOnNoStoryArea() {
-    _timerXp.visible = false;
-    _actInfo.update("", "");
-    _areaInfo.update("", "");
-    _progressCur.visible = false;
-    _progressNext.visible = false;
-    _clearLayouts(); // also clear layouts
-  }
-
   void _updateTimerWithArea(InArea area) {
     _timerXp.visible = true;
     _timerXp.areaLvl.value = area.areaLevel;
+    final PlayerData playerData = PlayerManager.playerManager().playerData;
     if (area.areaName == Areas.actZones.first.first && !area.isSecondPart) {
+      Logger.info("Starting timer from first zone");
       _timerXp.startTimer(); // twilight strand
     } else if (area.areaName == Areas.towns.last) {
-      final String time = _timerXp.getTimeString(_timerXp.stopTimer()); // karui shores
-      Logger.present("Finished the campaign / story in $time");
+      final Duration stopped = _timerXp.stopTimer(); // karui shores
+      Logger.present("Finished the campaign / story in ${_timerXp.getTimeString(stopped)}");
+      const Duration delay = Duration(minutes: 5);
+      Utils.executeDelayedNoAwait(
+        delay: delay,
+        callback: () async {
+          _timerXp.startTimer(stopped.inMilliseconds + delay.inMilliseconds); // after 5 min restart timer
+        },
+      );
+    } else if (!_timerXp.isStarted && playerData.characterName.isNotEmpty) {
+      Logger.info("Starting timer on entering with old value: ${playerData.timerMilliseconds}");
+      _timerXp.startTimer(playerData.timerMilliseconds);
     }
   }
 
-  void _updateGeneralInfoWithArea(InArea area, String act, ActConfig actConfig) {
+  void _updateGeneralInfoWithArea(InArea area, String act) {
     if (area.isStoryZone) {
+      final ActConfig actConfig = progressStoryConfig.actNotes[act]!;
       _actInfo.update(act, actConfig.actInfo);
       _areaInfo.update(area.areaName, actConfig.areaInfo[area.areaName] ?? "");
     } else {
+      // todo: map notes? with empty actname? different document?
       _actInfo.update("", ""); // dont display in town
       _areaInfo.update("", "");
     }
   }
 
-  // only called when it changes and needs updating
-  void _updateProgressionOverlays(ProgressionInfo? firstProgression, ProgressionInfo? secondProgression, InArea area) {
-    if (firstProgression != null) {
-      final bool secondAvailable = secondProgression != null; // change values
-      _progressCur.update("1. ${firstProgression.triggerArea}", firstProgression.infoText);
-      if (secondAvailable) {
-        _progressNext.update("2. ${secondProgression.triggerArea}", secondProgression.infoText);
-      } else {
-        _progressNext.update("", "");
-      }
-    } else if (_currentProgressionStep > -1) {
-      if (_progressCur.visible == false) _progressCur.visible = true; // only update visible again
-      if (_progressNext.visible == false && _progressNext.hasContent) _progressNext.visible = true;
-    }
-  }
-
   Future<void> _updateLayouts(InArea area, String actName) async {
     if (area.isStoryZone) {
-      _currentLayouts?.cleanup();
-      _currentLayouts = LayoutAsset(actName: actName, areaName: area.areaName);
-      final List<(FileInfoAsset, NativeImage)> elements = _currentLayouts!.overlayImages;
-      for (int i = 0; i < _layoutOverlays.length; ++i) {
-        final LayoutOverlay layoutOverlay = _layoutOverlays[i];
-        if (elements.length > i) {
-          final (FileInfoAsset info, NativeImage image) = elements[i];
-          layoutOverlay.update(await image.getDartImage(), info.fileName);
-        } else {
-          layoutOverlay.update(null, "");
-        }
-      }
+      await _updateLayoutOverlays(LayoutAsset(actName: actName, areaName: area.areaName));
     } else {
-      _clearLayouts(); // dont show in town!
+      // todo: map layout overlays
+      await _updateLayoutOverlays(null); // dont show in town!
     }
-  }
-
-  void _clearLayouts() {
-    for (int i = 0; i < _layoutOverlays.length; ++i) {
-      _layoutOverlays[i].update(null, "");
-    }
-    _currentLayouts?.cleanup();
-    _currentLayouts = null;
   }
 
   /// Shortcut to use this

@@ -61,7 +61,8 @@ base class Poe1LogWatcher extends PoeLogWatcher {
 
   bool skipInfoLogs(String p) {
     if (_start(p, "[SCENE] C") || _start(p, "[ENGINE]") || _start(p, "[STARTUP]") || _start(p, "Finished")) return true;
-    if (_start(p, "[RENDER]") || _start(p, "[SHADER]") || _start(p, "[VULKAN]") || _start(p, "[STORAGE]")) return true;
+    if (_start(p, "[RENDER]") || _start(p, "[DOWNLOAD]") || _start(p, "[VULKAN]") || _start(p, "[STORAGE]"))
+      return true;
     if (_start(p, "[GRAPH]") || _start(p, "[SOUND]") || _start(p, "[STREAMLINE]") || _start(p, "[JOB]")) return true;
     if (_start(p, "[PARTICLE]") || _start(p, "[TEXTURE]") || _start(p, "[PARTICLE]") || _start(p, "[MAT]")) return true;
     if (_start(p, "[VIDEO]") || _start(p, "[BUNDLE]") || _start(p, "[TRAILS]") || _start(p, "[MESH]")) return true;
@@ -72,7 +73,9 @@ base class Poe1LogWatcher extends PoeLogWatcher {
     if (_start(p, "Requesting") || _start(p, "Enumerated") || _start(p, "Got file list")) return true;
     if (_start(p, "Send") || _start(p, "Web") || _start(p, "Backup") || _start(p, "[RESOURCE]")) return true;
     if (_start(p, "Precalc") || _start(p, "[DXC]") || _start(p, "Tile hash") || _start(p, "Doodad hash")) return true;
-    if (_start(p, "[DOWNLOAD]")|| _start(p, "Queue file")) return true;
+    if (_start(p, "Queue file")) return true;
+
+    if (_start(p, "[SHADER]")) return p.contains("Delay:") == false; // dont skip shaper delay logs!
 
     // for now only ignore those scene logs (because trying to find login screen and character selection
     if (_start(p, "[SCENE] H") || _start(p, "[SCENE] Set Source [(null)]")) return true;

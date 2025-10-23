@@ -19,6 +19,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  provider: ^6.1.5
+
 dev_dependencies:
   integration_test:
     sdk: flutter

@@ -11,3 +11,12 @@
   implement
 
 - more details in project specific readme files 
+
+
+## Credits 
+
+- Got Story layouts from https://www.definitivguide.com/docs/layout 
+- Got map layouts from https://github.com/deathbeam/maps-of-exile/blob/main/site/src/data/maps.json
+  - with the help of https://www.poewiki.net/wiki/Area:MapAtziri2 and https://www.poewiki.
+    net/wiki/File:Cemetery_Map_area_screenshot.jpg and https://poe.ninja/challenge/divination-cards and 
+    https://poedb.tw/us/Maps#MapsList and https://poedb.tw/us/Colonnade_Map

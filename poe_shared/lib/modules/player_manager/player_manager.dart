@@ -7,24 +7,18 @@ import 'package:game_tools_lib/domain/game/game_window.dart';
 import 'package:game_tools_lib/domain/game/input/log_input_listener.dart';
 import 'package:game_tools_lib/domain/game/states/game_closed_state.dart';
 import 'package:game_tools_lib/game_tools_lib.dart';
-import 'package:game_tools_lib/presentation/widgets/helper/changes/simple_change_notifier.dart';
-import 'package:poe_shared/core/config/shared_mutable_config.dart';
 import 'package:poe_shared/core/poe_log_watcher.dart';
 import 'package:poe_shared/domain/states/in_area.dart';
 import 'package:poe_shared/domain/states/login_screen.dart';
 import 'package:poe_shared/modules/area_manager/areas.dart';
+import 'package:poe_shared/modules/player_manager/player_data.dart';
 
 // contains all open panels, etc and character name, etc
 // should poe1 and poe2 inherit with sub classes from this, or add listener?
 base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
   static const String _chatMsg = ",";
 
-  // will be empty first, new character will be loaded on first level up. Otherwise on joining the first area that's
-  // not the town. others may listen to changes, but should not change value!
-  final SimpleChangeNotifier<String> characterName = SimpleChangeNotifier<String>("");
-
-  // currently not tracked until lvlup. could do whois but is another chat
-  final SimpleChangeNotifier<int> characterLvl = SimpleChangeNotifier<int>(0);
+  final PlayerData playerData = PlayerData();
 
   SimpleLogInputListener? lvlListener;
 
@@ -48,6 +42,9 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
       quickAction: _parseNameFromLvlUp,
       deleteLineAfterwards: false,
     ),
+
+    // todo: other chat listener should be between this and delete chat line afterwards so that the "," does not
+    // parse the names of them!
     SimpleLogInputListener.instant(
       matchBeforeRegex: PoeLogWatcher.infoStart,
       matchAfterRegex: r": ,",
@@ -55,46 +52,6 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
       deleteLineAfterwards: false,
     ),
   ];
-
-  void _setName(String newName) {
-    characterName.value = newName;
-    if (newName.isNotEmpty) {
-      lvlListener = SimpleLogInputListener.instant(
-        matchBeforeRegex: "${PoeLogWatcher.infoStart}: $characterName \\(.*\\) is now level ",
-        matchAfterRegex: null,
-        quickAction: _parseLvl,
-        deleteLineAfterwards: false,
-      );
-      gameManager().addLogInputListener(lvlListener!);
-    } else if (lvlListener != null) {
-      gameManager().removeLogInputListener(lvlListener!);
-      lvlListener = null;
-    }
-  }
-
-  void _parseLvl(String lvl) {
-    if (characterName.value.isNotEmpty) {
-      characterLvl.value = int.tryParse(lvl) ?? 0;
-      Logger.debug("$characterName is now level $lvl");
-    } else {
-      Logger.warn("Got lvlup to $lvl without character name");
-    }
-  }
-
-  void _parseNameFromLvlUp(String newName) {
-    if (characterName.value.isEmpty) {
-      _setName(newName);
-      Logger.info("Got player name $newName from first level up");
-    }
-  }
-
-  void _parseFromChat(String newName) {
-    if (characterName.value.isNotEmpty) {
-      Logger.warn("Wanted to set new player name $newName, but it already was $characterName");
-    }
-    _setName(newName);
-    Logger.info("Got player name $newName from chatting");
-  }
 
   @override
   @mustCallSuper
@@ -123,7 +80,7 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
   GameEvent? performRelog() {
     Logger.info("Relogging");
     // TODO: no panel checks at all here at the moment :(  BETTER MAKE EVENT FOR IT. WINDOW FOCUS IS ALREADY CHECKED
-    //  HERE
+    //  HERE. after this playername will no longer be reset
     InputManager.sendChatMessage("/exit");
     return null;
   }
@@ -139,15 +96,60 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
   @override
   @mustCallSuper
   Future<void> onStart() async {
-    final String name = SharedMutableConfig.instance.characterNameOverride.cachedValue() ?? "";
-    if (name.isNotEmpty) {
-      characterName.value = name;
-    }
+    playerData.addListener(_onPlayerNameChange);
+    Logger.debug("Storage had player name: ${playerData.characterName}");
   }
 
   @override
   @mustCallSuper
-  Future<void> onStop() async {}
+  Future<void> onStop() async {
+    playerData.removeListener(_onPlayerNameChange);
+  }
+
+  void _onPlayerNameChange() {
+    if (playerData.characterName.isNotEmpty && lvlListener == null) {
+      Logger.verbose("Adding character level listener for ${playerData.characterName}");
+      lvlListener = SimpleLogInputListener.instant(
+        matchBeforeRegex: "${PoeLogWatcher.infoStart}: ${playerData.characterName} \\(.*\\) is now level ",
+        matchAfterRegex: null,
+        quickAction: _parseLvl,
+        deleteLineAfterwards: false,
+      );
+      gameManager().addLogInputListener(lvlListener!);
+    } else if (lvlListener != null) {
+      Logger.verbose("Removing character level listener");
+      gameManager().removeLogInputListener(lvlListener!);
+      lvlListener = null;
+    }
+  }
+
+  // called from log input listener (which is always added with current player name)
+  void _parseLvl(String lvl) {
+    if (playerData.characterName.isNotEmpty) {
+      playerData.characterLvl = int.tryParse(lvl) ?? 0;
+      Logger.debug("${playerData.characterName} is now level $lvl");
+    } else {
+      Logger.warn("Got lvlup to $lvl without character name");
+    }
+  }
+
+  // triggered on every lvlup log, so only take first when not set yet
+  void _parseNameFromLvlUp(String newName) {
+    if (playerData.characterName.isEmpty) {
+      playerData.characterName = newName;
+      Logger.info("Got player name $newName from first level up");
+    }
+  }
+
+  // from zone enter self write
+  void _parseFromChat(String newName) {
+    if (playerData.characterName.isNotEmpty) {
+      Logger.verbose("Did not set character name from chat from $newName ");
+    } else {
+      playerData.characterName = newName;
+      Logger.info("Got player name $newName from chatting");
+    }
+  }
 
   @override
   @mustCallSuper
@@ -169,22 +171,21 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
         Logger.verbose("skip player name reset because leveling run");
       } else {
         Logger.verbose("resetting player name and lvl");
-        _setName("");
-        characterLvl.value = 0;
+        playerData.resetCurrentCache();
       }
     } else if (newState.isType<InArea>()) {
       final InArea area = newState.asType<InArea>();
-      if (characterName.value.isEmpty && !area.isTown && area.isSecondPart == false) {
+      if (playerData.characterName.isEmpty && !area.isTown && !area.isHideout) {
         if (area.areaName == Areas.actZones.first.first) {
           // twilight strand started char will be auto configured, otherwise on first not town enter (first reset)
-          _setName(""); // set by listener above again!
-          characterLvl.value = 0;
+          playerData.resetCurrentCache();
           _noResetPlayerNameAfterTwilight = true;
-          Logger.debug("Twilight strand char name reset after muling");
+          Logger.debug("Twilight strand char name reset after muling a char ");
         } else {
           Logger.debug("Chatting to init player name..."); // dont await it here! received in chat above
+          // dont try multiple times, because opening chat sucks and could leak ctr+v?
           Utils.executeDelayedNoAwaitMS(
-            milliseconds: 800,
+            milliseconds: 200,
             callback: () async {
               if (GameToolsLib.mainGameWindow.hasFocus) {
                 await InputManager.sendChatMessage(_chatMsg, clearFirst: true);
