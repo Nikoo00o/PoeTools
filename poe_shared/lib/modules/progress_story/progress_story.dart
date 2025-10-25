@@ -6,6 +6,7 @@ import 'package:game_tools_lib/data/native/native_image.dart';
 import 'package:game_tools_lib/domain/game/game_window.dart';
 import 'package:game_tools_lib/domain/game/input/log_input_listener.dart';
 import 'package:game_tools_lib/game_tools_lib.dart';
+import 'package:game_tools_lib/presentation/overlay/ui_elements/compare_image.dart';
 import 'package:poe_shared/core/config/shared_mutable_config.dart';
 import 'package:poe_shared/domain/states/in_area.dart';
 import 'package:poe_shared/modules/area_manager/areas.dart';
@@ -26,7 +27,7 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> with
   @override
   TranslationString get moduleName => TS.raw("Story Progression");
 
-  // zero based so 0 is act 1. never goes back
+  // zero based so 0 is act 1. never goes back. does not update on town enter
   int _currentAct = 0;
 
   // step from act (will stay after logging out until end of program!)
@@ -66,9 +67,19 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> with
     await super.onStop();
   }
 
+  static final CompareImage comp = CompareImage(
+    bounds: ScaledBounds<int>.defaultBounds(x: 0, y: 0, width: 68, height: 68),
+    fileName: "burning_arrow",
+    subFolder: "compare/gems",
+  );
+
   @override
   @mustCallSuper
-  Future<void> onUpdate() async {}
+  Future<void> onUpdate() async {
+    //final pos = await comp.findPos(Bounds<int>(x: 400, y: 320, width: 900, height: 800), threshold: 0.76);
+    //Logger.info("Found at $pos");
+    //await Future<void>.delayed(Duration(seconds: 2));
+  }
 
   @override
   @mustCallSuper
@@ -110,6 +121,26 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> with
     _updateTimerWithArea(area); // visible in any zone
     _updateGeneralInfoWithArea(area, actName); // depends on story vs maps inside
     await _updateLayouts(area, actName); // depends on story vs maps inside
+    await _updateVendorRegex(area);
+  }
+
+  Future<void> _updateVendorRegex(InArea area) async {
+    if (area.isTown) {
+      bool skipOne = area.isSecondPart;
+      for (int i = 0; i < Areas.towns.length; ++i) {
+        final String town = Areas.towns[i]; // special case for towns, vendor regex
+        if (town == area.areaName) {
+          if (skipOne) {
+            skipOne = false;
+          } else {
+            // use real act for towns (if going back into previous act town)
+            final String regex = progressStoryConfig.actNotes[Areas.actNames.elementAt(i)]!.vendorRegex;
+            await InputManager.setClipboard(regex);
+            break;
+          }
+        }
+      }
+    }
   }
 
   // uses _updateAndGetProgressionInfo to update progression step
@@ -184,8 +215,7 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> with
       _actInfo.update(act, actConfig.actInfo);
       _areaInfo.update(area.areaName, actConfig.areaInfo[area.areaName] ?? "");
     } else {
-      final MapInfo? map = Areas.getMapInfo(area.areaName);
-      Logger.info("GOT MAP $map for ${area.areaName} and total ${Areas.maplist.elementAt(1).name}");
+      final MapInfo? map = Areas.getMapInfo(area.areaName); // might be map
       if (map != null && map.atlas && map.isUnique == false) {
         _areaInfo.update(area.areaName, map.getTextToDisplay());
         _actInfo.update("Maps", progressStoryConfig.endgameNotes);

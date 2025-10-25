@@ -13,7 +13,7 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
     required super.configOption,
   });
 
-  Widget _buildFormField(String? initialValue, void Function(String) onChanged, {String? hint}) {
+  Widget _buildFormField(String? initialValue, void Function(String) onChanged, {String? hint, int? maxLength}) {
     return TextFormField(
       decoration: InputDecoration(
         border: InputBorder.none,
@@ -28,6 +28,7 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
       keyboardType: TextInputType.multiline,
       initialValue: initialValue ?? "",
       onChanged: onChanged,
+      maxLength: maxLength,
     );
   }
 
@@ -158,6 +159,7 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
           buildElement: (BuildContext context, ProgressionInfo info) => buildProgressionElement(context, info, model),
         );
       },
+      maxHeight: 800,
     );
   }
 
@@ -168,6 +170,19 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
       buildElement: (BuildContext context, _) {
         return _buildFormField(config.actInfo, (String newText) {
           config.actInfo = newText;
+          configOption.setValue(model);
+        });
+      },
+    );
+  }
+
+  Widget _buildTownRegex(ActConfig config, ProgressStoryConfig model) {
+    return buildSimpleExpansionTile(
+      title: TS.raw("Vendor Regex for Ctrl+V"),
+      element: "Vendor Regex for Ctrl+V",
+      buildElement: (BuildContext context, _) {
+        return _buildFormField(config.vendorRegex, (String newText) {
+          config.vendorRegex = newText;
           configOption.setValue(model);
         });
       },
@@ -192,7 +207,7 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
       title: TS.raw("General Info for Each Area"),
       description: TS.raw(
         "This can contain specific zone layout info in the separate entries, "
-        "or general special info for each act what to pick up",
+        "or general special info for each act what to pick up. Or vendor regexes",
       ),
       elements: model.actNotes.keys.toList(),
       deleteButton: false,
@@ -200,7 +215,7 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
         // no correct error handling
         final ActConfig actConfig = model.actNotes[actName]!;
         final Map<String, String> areaInfoTexts = actConfig.areaInfo;
-        final List<String> children = <String>["", ...Areas.getZonesForAct(actName)]; // first element is act info
+        final List<String> children = <String>["", "", ...Areas.getZonesForAct(actName)]; // first element is act info
         return buildListOptionSimple(
           title: TS.raw(actName),
           elements: children,
@@ -208,6 +223,8 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
           buildElement: (BuildContext context, String areaName, int elementNumber) {
             if (elementNumber == 1) {
               return _buildGeneralInfoChild(actConfig, model);
+            } else if (elementNumber == 2) {
+              return _buildTownRegex(actConfig, model);
             } else {
               return _buildGeneralAreaChild(areaName, areaInfoTexts, model);
             }
@@ -233,7 +250,7 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
             return _buildFormField(model.replacements, (String newData) {
               model.replacements = newData;
               configOption.setValue(model);
-            }, hint: "Enter Endgame Mapping Notes");
+            }, hint: "For example \"G_P1={R,Name1};G_P2={G,Name2}\"", maxLength: 250);
           },
         ),
         buildProgressionInfo(context, model),

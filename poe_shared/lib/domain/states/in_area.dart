@@ -8,6 +8,7 @@ final class InArea extends GameState {
   /// Default would be 0
   final int areaLevel;
 
+  // one false positive would be last town of act 10, so dont use it for towns!
   static const int maxAreaLevelForPart1 = 44;
 
   /// Only for areas which may have the same name, this can be true depending on the area level

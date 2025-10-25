@@ -29,6 +29,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  image: ^4.5.4 # for download / crawl
+  http: ^1.5.0 # web crawling
+  html: ^0.15.6 # web crawl / parsing
+
 flutter:
   uses-material-design: true
 
@@ -38,7 +42,9 @@ flutter:
     - assets/locales/
     - assets/images/
     - assets/images/compare/
+    - assets/images/gems/
     - assets/areas/
+    - assets/items/
     - assets/layouts/
     - assets/layouts/Act_1/
     - assets/layouts/Act_1/The_Twilight_Strand/

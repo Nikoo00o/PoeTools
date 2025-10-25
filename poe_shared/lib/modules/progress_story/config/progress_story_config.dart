@@ -88,7 +88,7 @@ final class ProgressStoryConfig implements Model {
   factory ProgressStoryConfig.empty() {
     return ProgressStoryConfig(
       actNotes: <String, ActConfig>{
-        for (int i = 1; i <= 10; ++i) "Act $i": ActConfig(actInfo: "", areaInfo: <String, String>{}),
+        for (int i = 1; i <= 10; ++i) "Act $i": ActConfig(actInfo: "", vendorRegex: "", areaInfo: <String, String>{}),
       },
       progressionInfo: <ProgressionInfo>[],
       replacements: "",

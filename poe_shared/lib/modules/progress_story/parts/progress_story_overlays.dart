@@ -1,5 +1,7 @@
 part of '../progress_story.dart';
 
+// will not reset clipboard text
+
 base mixin _ProgressStoryOverlays<GM extends GameManagerBaseType> on Module<GM> {
   late final TimerXpOverlay _timerXp;
 

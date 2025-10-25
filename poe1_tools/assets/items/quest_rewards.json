@@ -1,0 +1,941 @@
+{
+  "The Twilight Strand": {
+    "Marauder": [
+      "Heavy Strike",
+      "Ruthless Support"
+    ],
+    "Witch": [
+      "Fireball",
+      "Arcane Surge",
+      "Support"
+    ],
+    "Scion": [
+      "Spectral Throw",
+      "Prismatic Burst",
+      "Support"
+    ],
+    "Ranger": [
+      "Burning Arrow",
+      "Momentum",
+      "Support"
+    ],
+    "Duelist": [
+      "Double Strike",
+      "Chance to Bleed",
+      "Support"
+    ],
+    "Shadow": [
+      "Viper Strike",
+      "Chance to Poison",
+      "Support"
+    ],
+    "Templar": [
+      "Glacial Hammer",
+      "Elemental Proliferation",
+      "Support"
+    ]
+  },
+  "Enemy at the Gate": {
+    "Marauder": [
+      "Ground Slam",
+      "Molten Strike",
+      "Shield Crush"
+    ],
+    "Witch": [
+      "Freezing Pulse",
+      "Rolling Magma",
+      "Lightning Tendrils",
+      "Raise Zombie",
+      "Blight",
+      "Kinetic Bolt"
+    ],
+    "Scion": [
+      "Molten Strike",
+      "Split Arrow",
+      "Lightning Tendrils",
+      "Splitting Steel"
+    ],
+    "Ranger": [
+      "Split Arrow",
+      "Ice Shot",
+      "Frost Blades",
+      "Galvanic Arrow",
+      "Caustic Arrow"
+    ],
+    "Duelist": [
+      "Cleave",
+      "Molten Strike",
+      "Galvanic Arrow",
+      "Perforate",
+      "Splitting Steel"
+    ],
+    "Shadow": [
+      "Freezing Pulse",
+      "Explosive Trap",
+      "Stormblast Mine",
+      "Ethereal Knives",
+      "Blight",
+      "Cobra Lash"
+    ],
+    "Templar": [
+      "Smite",
+      "Frostbolt",
+      "Rolling Magma",
+      "Lightning Tendrils",
+      "Molten Strike",
+      "Purifying Flame"
+    ]
+  },
+  "Breaking Some Eggs": {
+    "Marauder": [
+      "Decoy Totem",
+      "Steelskin",
+      "Vigilant Strike",
+      "Crushing Fist",
+      "Shield Charge"
+    ],
+    "Witch": [
+      "Frost Bomb",
+      "Orb of Storms",
+      "Summon Raging Spirit",
+      "Contagion",
+      "Detonate Dead",
+      "Flame Wall",
+      "Frostblink"
+    ],
+    "Scion": [
+      "Frost Bomb",
+      "Bear Trap",
+      "Decoy Totem",
+      "Vigilant Strike",
+      "Shield Charge",
+      "Dash",
+      "Frostblink"
+    ],
+    "Ranger": [
+      "Sniper's Mark",
+      "Bear Trap",
+      "Puncture",
+      "Shrapnel Ballista",
+      "Dash"
+    ],
+    "Duelist": [
+      "Sniper's Mark",
+      "Decoy Totem",
+      "Puncture",
+      "Vigilant Strike",
+      "War Banner",
+      "Blood and Sand",
+      "Crushing Fist",
+      "Shield Charge",
+      "Dash"
+    ],
+    "Shadow": [
+      "Bear Trap",
+      "Orb of Storms",
+      "Contagion",
+      "Detonate Dead",
+      "Dash",
+      "Frostblink"
+    ],
+    "Templar": [
+      "Frost Bomb",
+      "Summon Holy Relic",
+      "Holy Flame Totem",
+      "Vigilant Strike",
+      "Flame Wall",
+      "Shield Charge",
+      "Frostblink"
+    ]
+  },
+  "The Caged Brute": {
+    "Marauder": [
+      "Faster Attacks Support",
+      "Melee Splash Support",
+      "Added Fire Damage Support",
+      "Lifetap Support",
+      "Flamewood Support",
+      "Leap Slam",
+      "Vitality",
+      "Enduring Cry",
+      "Intimidating Cry"
+    ],
+    "Witch": [
+      "Added Lightning Damage Support",
+      "Minion Damage Support",
+      "Void Manipulation Support",
+      "Unbound Ailments Support",
+      "Combustion Support",
+      "Infernal Legion Support",
+      "Efficacy Support",
+      "Devour Support",
+      "Clarity",
+      "Summon Skeletons",
+      "Lightning Warp",
+      "Flame Dash",
+      "Wither",
+      "Bodyswap"
+    ],
+    "Scion": [
+      "Faster Attacks Support",
+      "Added Cold Damage Support",
+      "Added Lightning Damage Support",
+      "Added Fire Damage Support",
+      "Melee Splash Support",
+      "Lesser Multiple Projectiles Support",
+      "Unbound Ailments Support",
+      "Lifetap Support",
+      "Flame Dash",
+      "Blink Arrow",
+      "Leap Slam",
+      "Withering Step"
+    ],
+    "Ranger": [
+      "Faster Attacks Support",
+      "Lesser Multiple Projectiles Support",
+      "Added Cold Damage Support",
+      "Melee Splash Support",
+      "Void Manipulation Support",
+      "Arrow Nova Support",
+      "Manaforged Arrows Support",
+      "Whirling Blades",
+      "Blink Arrow",
+      "Smoke Mine",
+      "Precision"
+    ],
+    "Duelist": [
+      "Faster Attacks Support",
+      "Added Fire Damage Support",
+      "Melee Splash Support",
+      "Lesser Multiple Projectiles Support",
+      "Maim Support",
+      "Lifetap Support",
+      "Blink Arrow",
+      "Leap Slam",
+      "Whirling Blades",
+      "Precision",
+      "Vitality",
+      "Enduring Cry",
+      "Intimidating Cry"
+    ],
+    "Shadow": [
+      "Faster Attacks Support",
+      "Added Cold Damage Support",
+      "Added Lightning Damage Support",
+      "Lesser Multiple Projectiles Support",
+      "Void Manipulation Support",
+      "Multiple Traps Support",
+      "Clarity",
+      "Precision",
+      "Flame Dash",
+      "Whirling Blades",
+      "Smoke Mine",
+      "Withering Step",
+      "Unearth",
+      "Siphoning Trap"
+    ],
+    "Templar": [
+      "Added Fire Damage Support",
+      "Added Lightning Damage Support",
+      "Melee Splash Support",
+      "Combustion Support",
+      "Lifetap Support",
+      "Flame Dash",
+      "Clarity",
+      "Vitality",
+      "Leap Slam"
+    ]
+  },
+  "The Siren's Cadence": {
+    "Marauder": [
+      "Infernal Blow",
+      "Static Strike",
+      "Sweep",
+      "Sunder",
+      "Chain Hook",
+      "Earthshatter",
+      "Volcanic Fissure"
+    ],
+    "Witch": [
+      "Ice Nova",
+      "Blazing Salvo",
+      "Arc",
+      "Flesh Offering",
+      "Essence Drain",
+      "Scorching Ray",
+      "Volatile Dead",
+      "Creeping Frost",
+      "Manabond"
+    ],
+    "Scion": [
+      "Static Strike",
+      "Rain of Arrows",
+      "Ice Nova",
+      "Blade Vortex",
+      "Scorching Ray",
+      "Storm Burst",
+      "Exsanguinate",
+      "Spectral Helix"
+    ],
+    "Ranger": [
+      "Toxic Rain",
+      "Rain of Arrows",
+      "Lightning Arrow",
+      "Reave",
+      "Lightning Strike",
+      "Siege Ballista",
+      "Elemental Hit",
+      "Poisonous Concoction"
+    ],
+    "Duelist": [
+      "Lacerate",
+      "Sweep",
+      "Rain of Arrows",
+      "Shattering Steel",
+      "Earthshatter"
+    ],
+    "Shadow": [
+      "Reave",
+      "Voltaxic Burst",
+      "Icicle Mine",
+      "Lightning Trap",
+      "Fire Trap",
+      "Blade Vortex",
+      "Essence Drain",
+      "Volatile Dead",
+      "Venom Gyre"
+    ],
+    "Templar": [
+      "Static Strike",
+      "Ice Nova",
+      "Blazing Salvo",
+      "Storm Call",
+      "Searing Bond",
+      "Scorching Ray",
+      "Storm Brand",
+      "Storm Burst",
+      "Wintertide Brand",
+      "Absolution",
+      "Manabond"
+    ]
+  },
+  "Intruders in Black": {
+    "Marauder": [
+      "Warlord's Mark",
+      "Herald of Ash",
+      "Herald of Thunder",
+      "Herald of Ice",
+      "Ancestral Cry",
+      "Seismic Cry",
+      "Corrupting Fever",
+      "Molten Shell",
+      "Eviscerate"
+    ],
+    "Witch": [
+      "Herald of Ash",
+      "Herald of Thunder",
+      "Herald of Ice",
+      "Desecrate",
+      "Arctic Armour",
+      "Cold Snap",
+      "Arcane Cloak",
+      "Galvanic Field"
+    ],
+    "Scion": [
+      "Herald of Ash",
+      "Herald of Ice",
+      "Herald of Thunder",
+      "Frenzy",
+      "Arctic Armour",
+      "Corrupting Fever"
+    ],
+    "Ranger": [
+      "Poacher's Mark",
+      "Herald of Agony",
+      "Herald of Ice",
+      "Herald of Thunder",
+      "Herald of Ash",
+      "Frenzy",
+      "Arctic Armour",
+      "Blood Rage",
+      "Ensnaring Arrow"
+    ],
+    "Duelist": [
+      "Poacher's Mark",
+      "Warlord's Mark",
+      "Herald of Ash",
+      "Herald of Ice",
+      "Frenzy",
+      "Herald of Thunder",
+      "Flesh and Stone",
+      "Blood Rage",
+      "Ancestral Cry",
+      "Seismic Cry",
+      "Corrupting Fever",
+      "Defiance Banner",
+      "Eviscerate",
+      "Swordstorm",
+      "Glacial Shield Swipe"
+    ],
+    "Shadow": [
+      "Assassin's Mark",
+      "Herald of Agony",
+      "Herald of Thunder",
+      "Herald of Ash",
+      "Herald of Ice",
+      "Blade Blast",
+      "Arctic Armour",
+      "Cold Snap",
+      "Summon Skitterbots",
+      "Blood Rage",
+      "Arcane Cloak"
+    ],
+    "Templar": [
+      "Herald of Purity",
+      "Herald of Thunder",
+      "Herald of Ash",
+      "Herald of Ice",
+      "Brand Recall",
+      "Wave of Conviction",
+      "Arcane Cloak",
+      "Divine Retribution"
+    ]
+  },
+  "Sharp and Cruel": {
+    "Marauder": [
+      "Melee Physical Damage Support",
+      "Elemental Damage with Attacks Support",
+      "Shockwave Support",
+      "Close Combat Support",
+      "Rage Support",
+      "Cruelty Support",
+      "Volatility Support"
+    ],
+    "Witch": [
+      "Faster Casting Support",
+      "Minion Speed Support",
+      "Concentrated Effect Support",
+      "Controlled Destruction Support",
+      "Elemental Focus Support",
+      "Predator Support",
+      "Trinity Support",
+      "Cruelty Support",
+      "Overcharge Support",
+      "Fresh Meat Support",
+      "Sacred Wisps Support"
+    ],
+    "Scion": [
+      "Melee Physical Damage Support",
+      "Elemental Damage with Attacks Support",
+      "Faster Casting Support",
+      "Concentrated Effect Support",
+      "Vicious Projectiles Support",
+      "Deadly Ailments Support",
+      "Cruelty Support",
+      "Sadism Support"
+    ],
+    "Ranger": [
+      "Vicious Projectiles Support",
+      "Elemental Damage with Attacks Support",
+      "Close Combat Support",
+      "Trinity Support"
+    ],
+    "Duelist": [
+      "Melee Physical Damage Support",
+      "Elemental Damage with Attacks Support",
+      "Vicious Projectiles Support",
+      "Close Combat Support",
+      "Rage Support",
+      "Cruelty Support",
+      "Sadism Support"
+    ],
+    "Shadow": [
+      "Faster Casting Support",
+      "Melee Physical Damage Support",
+      "Trap and Mine Damage Support",
+      "Elemental Focus Support",
+      "Deadly Ailments Support",
+      "Nightblade Support",
+      "Trinity Support"
+    ],
+    "Templar": [
+      "Faster Casting Support",
+      "Concentrated Effect Support",
+      "Elemental Damage with Attacks Support",
+      "Melee Physical Damage Support",
+      "Controlled Destruction Support",
+      "Elemental Focus Support",
+      "Shockwave Support",
+      "Cruelty Support"
+    ]
+  },
+  "The Root of the Problem": {
+    "Marauder": [
+      "Volcanic Fissure",
+      "Elemental Damage with Attacks Support",
+      "Vicious Projectiles Support",
+      "Lifetap Support"
+    ],
+    "Witch": [
+      "Wintertide Brand",
+      "Controlled Destruction Support",
+      "Efficacy Support",
+      "Arcane Surge Support"
+    ],
+    "Scion": [],
+    "Ranger": [],
+    "Duelist": [],
+    "Shadow": [],
+    "Templar": [
+      "Absolution",
+      "Added Lightning Damage Support",
+      "Arcane Surge Support",
+      "Minion Damage Support",
+      "Static Strike",
+      "Elemental Damage with Attacks Support",
+      "Melee Physical Damage Support",
+      "Lifetap Support"
+    ]
+  },
+  "Lost in Love": {
+    "Marauder": [
+      "Anger",
+      "Determination",
+      "Punishment",
+      "Vulnerability",
+      "Pride",
+      "Infernal Cry",
+      "General's Cry",
+      "Petrified Blood",
+      "Vengeful Cry",
+      "Sewer Keys"
+    ],
+    "Witch": [
+      "Flammability",
+      "Conductivity",
+      "Frostbite",
+      "Elemental Weakness",
+      "Despair",
+      "Enfeeble",
+      "Temporal Chains",
+      "Discipline",
+      "Purity of Elements",
+      "Malevolence",
+      "Zealotry",
+      "Bane",
+      "Spellslinger"
+    ],
+    "Scion": [
+      "Flammability",
+      "Conductivity",
+      "Frostbite",
+      "Elemental Weakness",
+      "Vulnerability",
+      "Temporal Chains",
+      "Punishment",
+      "Anger",
+      "Wrath",
+      "Hatred",
+      "Bane",
+      "Malevolence",
+      "Zealotry",
+      "Petrified Blood"
+    ],
+    "Ranger": [
+      "Hatred",
+      "Grace",
+      "Despair",
+      "Alchemist's Mark"
+    ],
+    "Duelist": [
+      "Hatred",
+      "Grace",
+      "Dread Banner",
+      "Pride",
+      "Rallying Cry",
+      "Petrified Blood"
+    ],
+    "Shadow": [
+      "Flammability",
+      "Conductivity",
+      "Frostbite",
+      "Elemental Weakness",
+      "Despair",
+      "Enfeeble",
+      "Temporal Chains",
+      "Wrath",
+      "Hatred",
+      "Bane",
+      "Malevolence",
+      "Plague Bearer"
+    ],
+    "Templar": [
+      "Flammability",
+      "Conductivity",
+      "Frostbite",
+      "Elemental Weakness",
+      "Vulnerability",
+      "Enfeeble",
+      "Punishment",
+      "Zealotry",
+      "Battlemage's Cry"
+    ]
+  },
+  "Sever the Right Hand": {
+    "Marauder": [
+      "Cyclone",
+      "Ice Crash",
+      "Earthquake",
+      "Tectonic Slam",
+      "Rage Vortex"
+    ],
+    "Witch": [
+      "Glacial Cascade",
+      "Flameblast",
+      "Firestorm",
+      "Ball Lightning",
+      "Crackling Lance",
+      "Raise Spectre",
+      "Kinetic Blast",
+      "Cremation",
+      "Soulrend",
+      "Stormbind",
+      "Hexblast",
+      "Summon Reaper",
+      "Eye of Winter",
+      "Lightning Conduit"
+    ],
+    "Scion": [
+      "Cyclone",
+      "Tornado Shot",
+      "Flameblast",
+      "Bladefall",
+      "Blade Flurry",
+      "Charged Dash",
+      "Tectonic Slam",
+      "Divine Ire",
+      "Soulrend",
+      "Hexblast",
+      "Reap"
+    ],
+    "Ranger": [
+      "Scourge Arrow",
+      "Tornado Shot",
+      "Blast Rain",
+      "Wild Strike",
+      "Blade Flurry",
+      "Charged Dash",
+      "Artillery Ballista",
+      "Storm Rain",
+      "Explosive Concoction"
+    ],
+    "Duelist": [
+      "Cyclone",
+      "Ice Crash",
+      "Blast Rain",
+      "Charged Dash",
+      "Lancing Steel",
+      "Bladestorm",
+      "Spectral Shield Throw"
+    ],
+    "Shadow": [
+      "Pyroclast Mine",
+      "Ball Lightning",
+      "Flamethrower Trap",
+      "Lightning Spire Trap",
+      "Seismic Trap",
+      "Bladefall",
+      "Blade Flurry",
+      "Charged Dash",
+      "Cremation",
+      "Soulrend",
+      "Pestilent Strike",
+      "Hexblast"
+    ],
+    "Templar": [
+      "Ice Crash",
+      "Stormbind",
+      "Flameblast",
+      "Firestorm",
+      "Shock Nova",
+      "Shockwave Totem",
+      "Consecrated Path",
+      "Dominating Blow",
+      "Armageddon Brand",
+      "Divine Ire",
+      "Penance Brand"
+    ]
+  },
+  "A Fixture of Fate": {
+    "Marauder": [
+      "Life Leech Support",
+      "Fortify Support",
+      "Arrogance Support",
+      "More Duration Support",
+      "Pulverise Support",
+      "Impale Support",
+      "Urgent Orders Support",
+      "Bloodthirst Support",
+      "Corrupting Cry Support",
+      "Controlled Blaze Support"
+    ],
+    "Witch": [
+      "Fire Penetration Support",
+      "Cold Penetration Support",
+      "Lightning Penetration Support",
+      "Burning Damage Support",
+      "Blasphemy Support",
+      "Swift Affliction Support",
+      "Energy Leech Support",
+      "Intensify Support",
+      "Pinpoint Support",
+      "Feeding Frenzy Support",
+      "Meat Shield Support",
+      "Archmage Support",
+      "Impending Doom Support",
+      "Sacrifice Support",
+      "Focused Channelling Support"
+    ],
+    "Scion": [
+      "Fire Penetration Support",
+      "Cold Penetration Support",
+      "Lightning Penetration Support",
+      "Life Leech Support",
+      "Fortify Support",
+      "Ice Bite Support",
+      "Innervate Support",
+      "Energy Leech Support",
+      "Intensify Support",
+      "Impending Doom Support",
+      "Arrogance Support",
+      "Bloodthirst Support"
+    ],
+    "Ranger": [
+      "Life Leech Support",
+      "Fork Support",
+      "Fortify Support",
+      "Hypothermia Support",
+      "Ice Bite Support",
+      "Critical Strike Affliction Support",
+      "Impale Support",
+      "Second Wind Support",
+      "Focused Ballista Support"
+    ],
+    "Duelist": [
+      "Life Leech Support",
+      "Fortify Support",
+      "Arrogance Support",
+      "Hypothermia Support",
+      "Pulverise Support",
+      "Impale Support",
+      "Urgent Orders Support",
+      "Bloodthirst Support",
+      "Corrupting Cry Support",
+      "Expert Retaliation Support"
+    ],
+    "Shadow": [
+      "Second Wind Support",
+      "Cold Penetration Support",
+      "Lightning Penetration Support",
+      "Faster Projectiles Support",
+      "Ice Bite Support",
+      "Innervate Support",
+      "Critical Strike Affliction Support",
+      "Swift Affliction Support",
+      "Charged Traps Support",
+      "High-Impact Mine Support",
+      "Energy Leech Support",
+      "Charged Mines Support",
+      "Archmage Support",
+      "Impending Doom Support",
+      "Pinpoint Support",
+      "Focused Channelling Support"
+    ],
+    "Templar": [
+      "Fire Penetration Support",
+      "Cold Penetration Support",
+      "Lightning Penetration Support",
+      "Fortify Support",
+      "Burning Damage Support",
+      "Blasphemy Support",
+      "Energy Leech Support",
+      "Intensify Support",
+      "Pulverise Support",
+      "Archmage Support",
+      "Swiftbrand Support",
+      "Arrogance Support",
+      "Guardian's Blessing Support"
+    ]
+  },
+  "The Eternal Nightmare": {
+    "Marauder": [
+      "Spell Echo Support",
+      "Multistrike Support",
+      "Greater Multiple Projectiles Support",
+      "Chain Support",
+      "Increased Area of Effect Support",
+      "Brutality Support",
+      "Multiple Totems Support",
+      "Fist of War Support",
+      "Behead Support",
+      "Eternal Blessing Support",
+      "Trauma Support",
+      "Overexertion Support"
+    ],
+    "Witch": [
+      "Spell Echo Support",
+      "Multistrike Support",
+      "Greater Multiple Projectiles Support",
+      "Chain Support",
+      "Increased Area of Effect Support",
+      "Decay Support",
+      "Immolate Support",
+      "Bonechill Support",
+      "Hex Bloom Support",
+      "Unleash Support"
+    ],
+    "Scion": [
+      "Spell Echo Support",
+      "Multistrike Support",
+      "Greater Multiple Projectiles Support",
+      "Chain Support",
+      "Increased Area of Effect Support",
+      "Decay Support",
+      "Immolate Support",
+      "Unleash Support",
+      "Greater Volley Support",
+      "Barrage Support",
+      "Returning Projectiles Support",
+      "Frigid Bond Support"
+    ],
+    "Ranger": [
+      "Spell Echo Support",
+      "Multistrike Support",
+      "Greater Multiple Projectiles Support",
+      "Chain Support",
+      "Increased Area of Effect Support",
+      "Withering Touch Support",
+      "Greater Volley Support",
+      "Barrage Support",
+      "Returning Projectiles Support",
+      "Rupture Support"
+    ],
+    "Duelist": [
+      "Spell Echo Support",
+      "Multistrike Support",
+      "Greater Multiple Projectiles Support",
+      "Chain Support",
+      "Increased Area of Effect Support",
+      "Greater Volley Support",
+      "Barrage Support",
+      "Fist of War Support",
+      "Behead Support",
+      "Trauma Support"
+    ],
+    "Shadow": [
+      "Spell Echo Support",
+      "Multistrike Support",
+      "Greater Multiple Projectiles Support",
+      "Chain Support",
+      "Increased Area of Effect Support",
+      "Vile Toxins Support",
+      "Withering Touch Support",
+      "Bonechill Support",
+      "Cluster Traps Support",
+      "Minefield Support",
+      "Unleash Support",
+      "Greater Volley Support",
+      "Barrage Support",
+      "Returning Projectiles Support"
+    ],
+    "Templar": [
+      "Spell Echo Support",
+      "Multistrike Support",
+      "Greater Multiple Projectiles Support",
+      "Chain Support",
+      "Increased Area of Effect Support",
+      "Ignite Proliferation Support",
+      "Multiple Totems Support",
+      "Unleash Support",
+      "Arcanist Brand",
+      "Fist of War Support",
+      "Frigid Bond Support",
+      "Spellblade Support"
+    ]
+  },
+  "Breaking the Seal": {
+    "Marauder": [
+      "Summon Chaos Golem",
+      "Summon Ice Golem",
+      "Summon Flame Golem",
+      "Summon Stone Golem",
+      "Summon Lightning Golem",
+      "Berserk"
+    ],
+    "Witch": [
+      "Summon Chaos Golem",
+      "Summon Ice Golem",
+      "Summon Flame Golem",
+      "Summon Stone Golem",
+      "Summon Lightning Golem",
+      "Summon Carrion Golem",
+      "Sigil of Power",
+      "Void Sphere",
+      "Frost Shield",
+      "Hydrosphere"
+    ],
+    "Scion": [
+      "Summon Chaos Golem",
+      "Summon Ice Golem",
+      "Summon Flame Golem",
+      "Summon Stone Golem",
+      "Summon Lightning Golem",
+      "Void Sphere",
+      "Frost Shield",
+      "Soul Link",
+      "Flame Link",
+      "Intuitive Link"
+    ],
+    "Ranger": [
+      "Summon Chaos Golem",
+      "Summon Ice Golem",
+      "Summon Flame Golem",
+      "Summon Stone Golem",
+      "Summon Lightning Golem",
+      "Tornado",
+      "Snipe"
+    ],
+    "Duelist": [
+      "Summon Chaos Golem",
+      "Summon Ice Golem",
+      "Summon Flame Golem",
+      "Summon Stone Golem",
+      "Summon Lightning Golem"
+    ],
+    "Shadow": [
+      "Summon Chaos Golem",
+      "Summon Ice Golem",
+      "Summon Flame Golem",
+      "Summon Stone Golem",
+      "Summon Lightning Golem",
+      "Temporal Rift",
+      "Void Sphere",
+      "Frost Shield",
+      "Tornado",
+      "Ambush"
+    ],
+    "Templar": [
+      "Summon Chaos Golem",
+      "Summon Ice Golem",
+      "Summon Flame Golem",
+      "Summon Stone Golem",
+      "Summon Lightning Golem",
+      "Summon Carrion Golem",
+      "Sigil of Power",
+      "Void Sphere",
+      "Frost Shield",
+      "Hydrosphere",
+      "Frozen Legion"
+    ]
+  }
+}

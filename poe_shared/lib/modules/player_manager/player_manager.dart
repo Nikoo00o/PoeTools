@@ -25,6 +25,9 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
   // preserved until tool is closed to not open chat after each reconnect in story
   bool _noResetPlayerNameAfterTwilight = false;
 
+  // used to select updates
+  String? _lastName;
+
   @override
   TranslationString get moduleName => TS.raw("PlayerManager");
 
@@ -107,7 +110,11 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
   }
 
   void _onPlayerNameChange() {
-    if (playerData.characterName.isNotEmpty && lvlListener == null) {
+    if (playerData.characterName.isNotEmpty && _lastName != playerData.characterName) {
+      _lastName = playerData.characterName;
+      if (lvlListener != null) {
+        _resetPlayerNameListener();
+      }
       Logger.verbose("Adding character level listener for ${playerData.characterName}");
       lvlListener = SimpleLogInputListener.instant(
         matchBeforeRegex: "${PoeLogWatcher.infoStart}: ${playerData.characterName} \\(.*\\) is now level ",
@@ -117,10 +124,14 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
       );
       gameManager().addLogInputListener(lvlListener!);
     } else if (lvlListener != null) {
-      Logger.verbose("Removing character level listener");
-      gameManager().removeLogInputListener(lvlListener!);
-      lvlListener = null;
+      _resetPlayerNameListener();
     }
+  }
+
+  void _resetPlayerNameListener() {
+    Logger.verbose("Removing character level listener");
+    gameManager().removeLogInputListener(lvlListener!);
+    lvlListener = null;
   }
 
   // called from log input listener (which is always added with current player name)
@@ -185,7 +196,7 @@ base class PlayerManager<GM extends GameManagerBaseType> extends Module<GM> {
           Logger.debug("Chatting to init player name..."); // dont await it here! received in chat above
           // dont try multiple times, because opening chat sucks and could leak ctr+v?
           Utils.executeDelayedNoAwaitMS(
-            milliseconds: 200,
+            milliseconds: 150,
             callback: () async {
               if (GameToolsLib.mainGameWindow.hasFocus) {
                 await InputManager.sendChatMessage(_chatMsg, clearFirst: true);
