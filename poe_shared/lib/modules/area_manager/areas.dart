@@ -1,5 +1,6 @@
 import 'package:game_tools_lib/core/exceptions/exceptions.dart';
 import 'package:game_tools_lib/data/assets/gt_asset.dart';
+import 'package:poe_shared/modules/area_manager/map_info.dart';
 
 // for now no multi language support :( . so also no language aware files
 abstract final class Areas {
@@ -14,6 +15,7 @@ abstract final class Areas {
 
   // chatgpt: simple json map with key maps and value list of map names only and ignore the rest  from https://poedb.tw/us/Maps#MapsList i
   /// list of strings. NEEDS TO BE CRAWLED AGAIN EVERY SEASON FOR CURRENT AVAILABLE MAPS!
+  // NEW TAKEN FROM https://github.com/deathbeam/maps-of-exile/blob/main/site/src/data/maps.json
   static final JsonAsset _maps = JsonAsset(subFolderPath: "areas", fileName: "maps");
 
   // for example the temple, mastermind fight, syndicate safe house, other boss fights, etc
@@ -23,6 +25,7 @@ abstract final class Areas {
 
   static List<String>? _towns;
 
+  // taken from team focus group leveling docs
   static final JsonAsset _goodXp = JsonAsset(subFolderPath: "areas", fileName: "good_xp");
 
   // correct order for acts from 0, but also epilogue
@@ -109,16 +112,28 @@ abstract final class Areas {
     throw AssetException(message: "${_hideouts.fileName} did not contain hideouts");
   }
 
-  static List<String>? _mapNames;
+  static List<MapInfo>? _mapList;
 
-  static List<String> get mapNames {
-    if (_mapNames != null) return _mapNames!;
-    final Map<String, dynamic> json = _maps.validContent;
-    final List<dynamic>? element = json["maps"] as List<dynamic>?;
-    if (element != null) {
-      return _mapNames = List<String>.from(element);
+  static List<MapInfo> get maplist {
+    if (_mapList == null) {
+      final Map<String, dynamic> json = _maps.validContent;
+      final List<dynamic>? element = json["maps"] as List<dynamic>?;
+      if (element != null) {
+        _mapList = element.map((dynamic value) => MapInfo.fromJson(value as Map<String, dynamic>)).toList();
+      }
     }
-    throw AssetException(message: "${_maps.fileName} did not contain maps");
+    return _mapList!;
+  }
+
+  // maps downloaded from the github repo, but with json key "maps"
+  // may be empty if it does not exist
+  static MapInfo? getMapInfo(String mapName) {
+    final Iterable<MapInfo> it = maplist.where((MapInfo info) => info.name == mapName);
+    if (it.isNotEmpty) {
+      return it.first;
+    } else {
+      return null;
+    }
   }
 
   static List<String>? _specialNames;

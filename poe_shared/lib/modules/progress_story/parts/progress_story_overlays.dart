@@ -11,6 +11,9 @@ base mixin _ProgressStoryOverlays<GM extends GameManagerBaseType> on Module<GM> 
 
   final List<LayoutOverlay> _layoutOverlays = <LayoutOverlay>[];
 
+  // used only to access read
+  ProgressStoryConfig get progressStoryConfig => SharedMutableConfig.instance.progressStoryConfig.cachedValueNotNull();
+
   @override
   @mustCallSuper
   Future<void> onStart() async {
@@ -98,12 +101,27 @@ base mixin _ProgressStoryOverlays<GM extends GameManagerBaseType> on Module<GM> 
     }
   }
 
+  String convertedProgressionInfo(ProgressionInfo info) {
+    final String rawReplace = progressStoryConfig.replacements;
+    String text = info.infoText;
+    if (rawReplace.contains("=")) {
+      final List<String> replacements = rawReplace.split(";");
+      for (final String replace in replacements) {
+        final List<String> parts = replace.split("=");
+        if (parts.length == 2) {
+          text = text.replaceAll(parts[0], parts[1]);
+        }
+      }
+    }
+    return text;
+  }
+
   // called when progressing to new progression step
   void _updateNextProgressionOverlay(ProgressionInfo firstProgression, ProgressionInfo? secondProgression) {
     final bool secondAvailable = secondProgression != null; // change values
-    _progressCur.update("1. ${firstProgression.triggerArea}", firstProgression.infoText);
+    _progressCur.update("1. ${firstProgression.triggerArea}", convertedProgressionInfo(firstProgression));
     if (secondAvailable) {
-      _progressNext.update("2. ${secondProgression.triggerArea}", secondProgression.infoText);
+      _progressNext.update("2. ${secondProgression.triggerArea}", convertedProgressionInfo(secondProgression));
     } else {
       _progressNext.update("", "");
     }

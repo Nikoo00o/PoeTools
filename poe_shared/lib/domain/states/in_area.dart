@@ -33,7 +33,7 @@ final class InArea extends GameState {
 
   bool get isTown => Areas.towns.contains(areaName);
 
-  bool get isMap => Areas.mapNames.contains(areaName);
+  bool get isMap => Areas.getMapInfo(areaName) != null;
 
   /// does not return true for towns
   bool get isStoryZone {

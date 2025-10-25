@@ -10,6 +10,7 @@ import 'package:poe_shared/core/config/shared_mutable_config.dart';
 import 'package:poe_shared/domain/states/in_area.dart';
 import 'package:poe_shared/modules/area_manager/areas.dart';
 import 'package:poe_shared/modules/area_manager/layout_asset.dart';
+import 'package:poe_shared/modules/area_manager/map_info.dart';
 import 'package:poe_shared/modules/player_manager/player_data.dart';
 import 'package:poe_shared/modules/player_manager/player_manager.dart';
 import 'package:poe_shared/modules/progress_story/config/act_config.dart';
@@ -30,9 +31,6 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> with
 
   // step from act (will stay after logging out until end of program!)
   int _currentProgressionStep = -1;
-
-  // used only to access read
-  ProgressStoryConfig get progressStoryConfig => SharedMutableConfig.instance.progressStoryConfig.cachedValueNotNull();
 
   @override
   @mustCallSuper
@@ -186,9 +184,15 @@ base class ProgressStory<GM extends GameManagerBaseType> extends Module<GM> with
       _actInfo.update(act, actConfig.actInfo);
       _areaInfo.update(area.areaName, actConfig.areaInfo[area.areaName] ?? "");
     } else {
-      // todo: map notes? with empty actname? different document?
-      _actInfo.update("", ""); // dont display in town
-      _areaInfo.update("", "");
+      final MapInfo? map = Areas.getMapInfo(area.areaName);
+      Logger.info("GOT MAP $map for ${area.areaName} and total ${Areas.maplist.elementAt(1).name}");
+      if (map != null && map.atlas && map.isUnique == false) {
+        _areaInfo.update(area.areaName, map.getTextToDisplay());
+        _actInfo.update("Maps", progressStoryConfig.endgameNotes);
+      } else {
+        _actInfo.update("", ""); // dont display in town / hideout
+        _areaInfo.update("", "");
+      }
     }
   }
 

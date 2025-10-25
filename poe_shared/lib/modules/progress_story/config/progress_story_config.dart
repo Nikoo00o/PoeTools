@@ -14,13 +14,28 @@ final class ProgressStoryConfig implements Model {
 
   static const String JSON_PROGRESSION_INFO = "Progression Steps";
 
+  static const String JSON_REPLACEMENTS = "Progression Replacement List";
+
+  static const String JSON_ENDGAME_NOTES = "General Mapping Endgame Notes";
+
   /// one act after another named with correct names (only modify objects internally!)
   final Map<String, ActConfig> actNotes;
 
   /// one step after another independent from acts
   List<ProgressionInfo> progressionInfo;
 
-  ProgressStoryConfig({required this.actNotes, required this.progressionInfo});
+  // for progression info names, etc
+  String replacements;
+
+  // for mapping some general info
+  String endgameNotes;
+
+  ProgressStoryConfig({
+    required this.actNotes,
+    required this.progressionInfo,
+    required this.replacements,
+    required this.endgameNotes,
+  });
 
   static ModelConfigOption<ProgressStoryConfig> createOption() {
     return ModelConfigOption<ProgressStoryConfig>(
@@ -46,6 +61,8 @@ final class ProgressStoryConfig implements Model {
     return <String, dynamic>{
       JSON_ACT_NOTES: actNotes,
       JSON_PROGRESSION_INFO: progressionInfo,
+      JSON_REPLACEMENTS: replacements,
+      JSON_ENDGAME_NOTES: endgameNotes,
     };
   }
 
@@ -62,6 +79,8 @@ final class ProgressStoryConfig implements Model {
     return ProgressStoryConfig(
       actNotes: acts,
       progressionInfo: progressionInfo,
+      replacements: json[JSON_REPLACEMENTS] as String? ?? "",
+      endgameNotes: json[JSON_ENDGAME_NOTES] as String? ?? "",
     );
   }
 
@@ -72,6 +91,8 @@ final class ProgressStoryConfig implements Model {
         for (int i = 1; i <= 10; ++i) "Act $i": ActConfig(actInfo: "", areaInfo: <String, String>{}),
       },
       progressionInfo: <ProgressionInfo>[],
+      replacements: "",
+      endgameNotes: "",
     );
   }
 

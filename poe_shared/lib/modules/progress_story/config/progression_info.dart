@@ -13,6 +13,7 @@ final class ProgressionInfo implements Model {
   // for maps would be empty
   String parentAct;
 
+  // remember when accessing to convert by parents list of replacements
   String infoText;
 
   // todo: gem info

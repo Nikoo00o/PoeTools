@@ -55,18 +55,21 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
       physics: const NeverScrollableScrollPhysics(),
       itemCount: zones.length,
       itemBuilder: (_, int index) {
-        final bool selected = selectedIndex == index + offset;
+        final int shiftedIndex = index + offset;
+        final bool selected = selectedIndex == shiftedIndex;
         if (selected) {
           Logger.verbose("$act and ${zones[index]} selected! for $selectedIndex and $index + $offset");
         }
         return Card(
           child: ListTile(
-            enabled: model.progressionInfo
-                .where((ProgressionInfo info) => info.parentAct == act && info.triggerArea == zones[index])
-                .isEmpty,
+            enabled:
+                shiftedIndex == selectedIndex ||
+                model.progressionInfo
+                    .where((ProgressionInfo info) => info.parentAct == act && info.triggerArea == zones[index])
+                    .isEmpty,
             title: Text(zones[index]),
             trailing: selected ? const Icon(Icons.check) : null,
-            onTap: () => onSelect(index + offset, act, zones[index]),
+            onTap: () => onSelect(shiftedIndex, act, zones[index]),
             selected: selected,
           ),
         );
@@ -193,7 +196,7 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
       ),
       elements: model.actNotes.keys.toList(),
       deleteButton: false,
-      buildElement: (BuildContext context, String actName, int elementNumber) {
+      buildElement: (BuildContext context, String actName, int _) {
         // no correct error handling
         final ActConfig actConfig = model.actNotes[actName]!;
         final Map<String, String> areaInfoTexts = actConfig.areaInfo;
@@ -219,8 +222,35 @@ final class ConfigOptionBuilderProgressStoryConfig extends ConfigOptionBuilderMo
     return buildMultiOptionsWithTitle(
       context: context,
       children: <Widget>[
+        buildSimpleExpansionTile(
+          title: TS.raw("Story Progression Replacements"),
+          description: TS.raw(
+            "Used below in the Steps. Separate entries with \";\" and use \"KEY=VALUE\". For example to set names for "
+            "group leveling with \"G_P1={R,Name1};G_P2={G,Name2}\"",
+          ),
+          element: "",
+          buildElement: (BuildContext context, String _) {
+            return _buildFormField(model.replacements, (String newData) {
+              model.replacements = newData;
+              configOption.setValue(model);
+            }, hint: "Enter Endgame Mapping Notes");
+          },
+        ),
         buildProgressionInfo(context, model),
         buildGeneralAreaInfo(context, model),
+        buildSimpleExpansionTile(
+          title: TS.raw("Endgame Mapping Notes"),
+          description: TS.raw(
+            "General speedrun tactics for endgame can be input here to show during all non unique maps",
+          ),
+          element: "",
+          buildElement: (BuildContext context, String _) {
+            return _buildFormField(model.endgameNotes, (String newData) {
+              model.endgameNotes = newData;
+              configOption.setValue(model);
+            }, hint: "Enter Endgame Mapping Notes");
+          },
+        ),
       ],
     );
   }
